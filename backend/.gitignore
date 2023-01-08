@@ -1,0 +1,9 @@
+__pycache__
+ethpector-lookup-cache
+dump.rdb
+*.whl
+.mythril
+.pytest_cache
+ethpector-output
+appendonly.aof
+.VSCodeCounter

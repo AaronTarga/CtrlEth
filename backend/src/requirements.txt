@@ -1,0 +1,8 @@
+ethpector
+Flask
+Flask-Cors
+celery
+redis
+Flask-CeleryExt
+kombu
+celery_once
