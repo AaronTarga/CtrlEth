@@ -173,10 +173,10 @@ The built app can be run with `npm run start`. This uses [sirv](https://github.c
 
 
 ## TODOS
-- create deploy workflow
-- switch to a database using persistent storage for storing analysis results
-- improve analysis visualizations (like linking ethereum addresses)
-- human readable zmt constraints
+- Create deploy workflow
+- Switch to a database using persistent storage for storing analysis results
+- Improve analysis visualizations (like linking ethereum addresses)
+- Human readable SMT constraints
 
 ## Credits
 
