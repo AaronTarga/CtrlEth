@@ -184,6 +184,6 @@ We thank the developers of [Ethpector](https://github.com/uibk-ethpector/ethpect
 
 ## Funding
 
-Some parts of this project were created in the course of the [Kryptomonitor Project](https://kryptomonitor-project.info/).
+Some parts of this project were created at Universität Innsbruck, Austria, in the course of the [KRYPTOMONITOR project](https://kryptomonitor-project.info/).
 >    The security research project KRYPTOMONITOR is funded by the Austrian security research programme KIRAS of the Federal Ministry of Agriculture,
 >    Regions and Tourism (BMLRT).
