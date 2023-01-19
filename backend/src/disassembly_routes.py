@@ -66,7 +66,7 @@ def get_disassembly(address, args):
 
         for jump in disassembly_summary.jump_targets:
             # adding all jumps to links list could add types if needed to block#
-            if pc_to_block[jump.get_pc()]:
+            if jump.get_pc() in pc_to_block:
                 bb = bbs[pc_to_block[jump.get_pc()]]
                 if bb.is_static_jump_block():
                     links += generate_jumps(bb, pc_to_block)
