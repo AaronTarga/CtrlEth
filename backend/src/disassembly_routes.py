@@ -1,5 +1,5 @@
 import os
-from flask import Blueprint
+from flask import Blueprint, request
 from utils.disassembly import add_annotations, add_symbolics, create_block_dict, is_conditional_jump, generate_jumps, add_event_lookups, add_storage_lookups
 from utils import get_analysis, use_args
 from ethpector.data.node import NodeProvider
@@ -8,6 +8,7 @@ from networkx.readwrite import json_graph
 from ethpector.data.datatypes import to_json
 from datatypes.json_mapping import json_to_assembly, json_to_basic_blocks, json_to_symbolic
 import json
+from json import JSONDecodeError
 from celery_once import QueueOnce
 from shared import celery, redis
 import dataclasses
@@ -25,12 +26,12 @@ ethpector_rpc = os.environ.get('ETHPECTOR_RPC')
 disassembly_task_name = "get_disassembly"
 
 @celery.task(name=disassembly_task_name, base=QueueOnce, once={'keys': ['address']})
-def get_disassembly(address, args):
+def get_disassembly(address, args, mythril_args=None):
     # add task id to redis cache if multiple users load same contract only one task started
     data = redis.get_routes_from_cache(key=address)
     if (data is None):
         try:
-            analysis = get_analysis(address, args)
+            analysis = get_analysis(address, args,mythril_args)
         except ValueError as valueError:
             # not found if valueError
             return {"task_error": {"message": str(valueError), "status": 404}}
@@ -211,8 +212,27 @@ def get_disassembly_cfg(address, args):
 def analyse_disassembly(address):
 
     try:
+        body = json.loads(request.data)
+    except JSONDecodeError:
+        body = None
+
+    token = etherscan_token
+    rpc = ethpector_rpc
+    mythril_args = None
+
+    if body:
+        if "mythril" in body:
+            mythril_args = body['mythril']
+
+        if "secrets" in body:
+            if "etherscan" in body['secrets']:
+                token = body['secrets']['etherscan']
+            if "rpc" in body['secrets']:
+                rpc = body['secrets']['rpc']
+
+    try:
         get_disassembly.delay(address, use_args(
-            etherscan_token=etherscan_token, ethpector_rpc=ethpector_rpc))
+            etherscan_token=token, ethpector_rpc=rpc),mythril_args)
     except AlreadyQueued:
         return {"state": 2}, 200
 
