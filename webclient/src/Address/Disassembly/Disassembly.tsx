@@ -356,7 +356,7 @@ export default function Disassembly() {
         }
       }
 
-      cy.on('select', (event) => {
+      cy.on('select','node', (event) => {
         const id = event.target.data()['id'];
         if (id !== null) {
           setBlockDetail(blockRef.current['blocks'][id]);

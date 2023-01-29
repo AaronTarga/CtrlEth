@@ -1,4 +1,4 @@
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Python 3.6](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/release/python-3100/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/release/python-3100/)
 
 # CtrlEth
 
@@ -171,6 +171,12 @@ npm run build
 
 The built app can be run with `npm run start`. This uses [sirv](https://github.com/lukeed/sirv), which is included in the package.json's `dependencies` so that the app works when deployed to platforms like [Heroku](https://heroku.com).
 
+### Config file
+In the webclient [folder](webclient/) a .env file needs to be created containing the base url of the running backend like in this example:
+
+```
+REACT_APP_BACKEND_URL=http://127.0.0.1:5000
+```
 
 ## TODOS
 - Create deploy workflow
