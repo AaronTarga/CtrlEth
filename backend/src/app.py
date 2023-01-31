@@ -5,7 +5,7 @@ from celery.signals import setup_logging
 from utils import get_analysis, use_args
 from disassembly_routes import disassembly_route
 from information_routes import information_route
-from shared import  app,celery
+from shared import app
 from utils.source import categorize_abi_names
 
 etherscan_token = os.environ.get('ETHERSCAN_TOKEN')
@@ -15,9 +15,8 @@ app.register_blueprint(disassembly_route, url_prefix="/disassembly")
 app.register_blueprint(information_route, url_prefix="/information")
 
 
-# prevent celery from overriding loggin and breaking mythril analysis workaround taken from this issue: https://github.com/celery/celery/issues/1867
-
 @setup_logging.connect
+# prevent celery from overriding loggin and breaking mythril analysis workaround taken from this issue: https://github.com/celery/celery/issues/1867
 def void(*args, **kwargs):
     """ Override celery's logging setup to prevent it from altering our settings.
     github.com/celery/celery/issues/1867
@@ -34,33 +33,31 @@ def analyse_source(address):
             etherscan_token=etherscan_token, ethpector_rpc=ethpector_rpc))
     except ValueError as valueError:
         # not found if valueError
-        return str(valueError),404
+        return str(valueError), 404
 
     if analysis is None:
-        return "No analysis result",404
+        return "No analysis result", 404
 
     if (not type(analysis).__name__ == "CodeAnalysis" and "task_error" in analysis):
-        return analysis['task_error']['message'],analysis['task_error']['status']
+        return analysis['task_error']['message'], analysis['task_error']['status']
 
     summary = analysis.get_source_summary()
-    
+
     # no analysis without etherscan token
     if "etherscan" not in summary.source_code:
-        return "Etherscan token neeeded for analysis",500
+        return "Etherscan token neeeded for analysis", 500
 
     if "etherscan" not in summary.source_abi or "etherscan" not in summary.source_metadata:
-        return "No Source code available on Etherscan",404
+        return "No Source code available on Etherscan", 404
 
     source_code = summary.source_code['etherscan'][0]['source_code']
     source_abi = summary.source_abi['etherscan']
-    
-    events,functions = categorize_abi_names(source_abi)
-    
+
+    events, functions = categorize_abi_names(source_abi)
+
     source_metadata = summary.source_metadata['etherscan']
 
     return {"source_code": source_code, "source_abi": source_abi, "source_metadata": source_metadata, "functions": functions, "events": events}
-
-
 
 
 @app.route("/tasks/<task_id>")

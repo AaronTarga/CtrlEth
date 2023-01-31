@@ -25,13 +25,14 @@ ethpector_rpc = os.environ.get('ETHPECTOR_RPC')
 
 disassembly_task_name = "get_disassembly"
 
+
 @celery.task(name=disassembly_task_name, base=QueueOnce, once={'keys': ['address']})
 def get_disassembly(address, args, mythril_args=None):
     # add task id to redis cache if multiple users load same contract only one task started
     data = redis.get_routes_from_cache(key=address)
     if (data is None):
         try:
-            analysis = get_analysis(address, args,mythril_args)
+            analysis = get_analysis(address, args, mythril_args)
         except ValueError as valueError:
             # not found if valueError
             return {"task_error": {"message": str(valueError), "status": 404}}
@@ -93,10 +94,9 @@ def get_disassembly(address, args, mythril_args=None):
 
     return address
 
-# cast dict keys to int
-
 
 def jsonKeys2int(x):
+    # cast dict keys to int
     if isinstance(x, dict):
 
         return {int(k): v for k, v in x.items()}
@@ -126,7 +126,7 @@ def load_analysis(address):
     online_resolver = AggregateProvider(config)
     code = online_resolver.first_of(["node", "etherscan"]).get_code(address)
 
-    #invalid addresses have no code and external account addresses or selfdestructed contracts have 0x as code and cannot be analysed
+    # invalid addresses have no code and external account addresses or selfdestructed contracts have 0x as code and cannot be analysed
     if code == "0x":
         return "No bytecode at address", 404
 
@@ -136,11 +136,11 @@ def load_analysis(address):
     data = redis.get_routes_from_cache(address)
     if data == None:
         # if celery once key is found we now a task is still running
-        key = queue_once_key(disassembly_task_name,{"address": address,"args": use_args(
-        etherscan_token=etherscan_token, ethpector_rpc=ethpector_rpc)}, ["address"]) 
+        key = queue_once_key(disassembly_task_name, {"address": address, "args": use_args(
+            etherscan_token=etherscan_token, ethpector_rpc=ethpector_rpc)}, ["address"])
         if redis.get_routes_from_cache(key) != None:
             return {"state": 2}
-        
+
         return {"state": 1}
 
     data = json.loads(data)
@@ -232,7 +232,7 @@ def analyse_disassembly(address):
 
     try:
         get_disassembly.delay(address, use_args(
-            etherscan_token=token, ethpector_rpc=rpc),mythril_args)
+            etherscan_token=token, ethpector_rpc=rpc), mythril_args)
     except AlreadyQueued:
         return {"state": 2}, 200
 

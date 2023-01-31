@@ -4,45 +4,52 @@ import pyevmasm as EVMAsm
 from dataclasses import dataclass
 from ethpector.data.datatypes import SymbolicExpression
 
+
 @dataclass
 class ReportedSymbolicVariable:
     var: Variable | str
     symbolic: Optional[bool] = False
-    
+
+
 @dataclass
 class ReportedInstructions():
     instruction: EVMAsm.Instruction
     annotations: list[any]
-    
-#could be extended to get restore full object    
-@dataclass   
+
+
+@dataclass
 class ReportedSymbolicMemorySlice:
     value: str
- 
-@dataclass   
+
+
+@dataclass
 class ReportedSymbolicExpression:
     condition: str
-        
-    
+
+
 @dataclass
 class TypedAnnotation:
     _class: str
-    data: any    
-    
-@dataclass    
+    data: any
+
+
+@dataclass
 class ReportedBasicBlocks:
     i: int
     instructions: list[ReportedInstructions]
     annotations: list[TypedAnnotation]
     nextBlockIndex: Optional[int]
 
-@dataclass       
+
+@dataclass
 class ReportedAnnotation():
     tags: dict
-    
-@dataclass        
+
+
+@dataclass
 class ReportedPCAnnotation(ReportedAnnotation):
     pc: int
+
 
 @dataclass
 class FunctionSummary(ReportedAnnotation):
@@ -56,34 +63,40 @@ class FunctionSummary(ReportedAnnotation):
     has_creates: bool
     has_create2s: bool
     has_selfdestructs: bool
-    
-@dataclass    
+
+
+@dataclass
 class Call(ReportedPCAnnotation):
     to: ReportedSymbolicVariable
     gas: ReportedSymbolicVariable
     type: ReportedSymbolicVariable
     value: ReportedSymbolicVariable
     data: ReportedSymbolicVariable
- 
-@dataclass   
+
+
+@dataclass
 class StorageLoad(ReportedPCAnnotation):
     slot: ReportedSymbolicVariable
-    
-@dataclass   
+
+
+@dataclass
 class StorageWrite(ReportedPCAnnotation):
     slot: ReportedSymbolicVariable
     value: ReportedSymbolicVariable
 
+
 @dataclass
 class MemoryLoad(ReportedPCAnnotation):
     slot: ReportedSymbolicVariable
-    
-@dataclass   
+
+
+@dataclass
 class MemoryWrite(ReportedPCAnnotation):
     slot: ReportedSymbolicVariable
     value: ReportedSymbolicVariable
-   
-@dataclass 
+
+
+@dataclass
 class Log(ReportedPCAnnotation):
     n: int
     topic0: ReportedSymbolicVariable
@@ -92,41 +105,50 @@ class Log(ReportedPCAnnotation):
     topic3: ReportedSymbolicVariable
     data: ReportedSymbolicMemorySlice
 
+
 @dataclass
 class Return(ReportedPCAnnotation):
     data: ReportedSymbolicMemorySlice
-    
+
+
 @dataclass
 class Revert(ReportedPCAnnotation):
     data: ReportedSymbolicMemorySlice
-    
+
+
 @dataclass
 class Selfdestruct(ReportedPCAnnotation):
     address: ReportedSymbolicVariable
-   
-@dataclass    
+
+
+@dataclass
 class Calldataload(ReportedPCAnnotation):
     offset: ReportedSymbolicVariable
-    
-@dataclass    
+
+
+@dataclass
 class Calldatacopy(ReportedPCAnnotation):
     offset: ReportedSymbolicVariable
     mem_addr: ReportedSymbolicVariable
     length: ReportedSymbolicVariable
-    
+
+
 @dataclass
 class UnconditionalJump(ReportedPCAnnotation):
     to: ReportedSymbolicVariable
-    
+
+
 @dataclass
 class ConditionalJump(ReportedPCAnnotation):
     to: ReportedSymbolicVariable
     condition: object
-    
+
+
 @dataclass
 class Push(ReportedPCAnnotation):
     value: int
-    
+
+
 @dataclass
 class SenderConstraintFunction(ReportedPCAnnotation):
     address: ReportedSymbolicVariable
@@ -136,8 +158,9 @@ class SenderConstraintFunction(ReportedPCAnnotation):
     is_probably_mapping: bool = False
     true_branch_reachable: bool = False
     false_branch_reachable: bool = False
-    
-@dataclass 
+
+
+@dataclass
 class ReportedSymbolicExecSummary():
     functions: list[FunctionSummary]
     calls: list[Call]
