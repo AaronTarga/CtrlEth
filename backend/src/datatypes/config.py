@@ -1,7 +1,8 @@
 import os
 
-#Config from Ethpector modified to allow to pass arguments instead of using env
+
 class MythrilConfiguration:
+    # Config from Ethpector modified to allow to pass arguments instead of using env
     def __init__(self, args):
         self._mythril_concolic = args.get("concolic")
         self._strategy = args.get("strategy")

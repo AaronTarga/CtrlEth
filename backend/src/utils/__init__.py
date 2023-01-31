@@ -22,9 +22,11 @@ def create_app():
 
     return app
 
-def use_args(ethpector_rpc= None, etherscan_token=None):
+
+def use_args(ethpector_rpc=None, etherscan_token=None):
     return {"rpc": ethpector_rpc, "etherscan_token": etherscan_token, "concolic": None, "loglevel": None, "deploy_code": None, "address": None,
             "tofile": None, "dont_drop_metadatastring": None, "offline": False, "nodotenv": None, "output": None, "output_dir": 'ethpector-output'}
+
 
 def get_analysis(address, args, mythril_args=None):
 

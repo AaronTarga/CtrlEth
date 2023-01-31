@@ -1,5 +1,5 @@
 from unittest.mock import Mock, MagicMock, patch
-from utils.information import etherscan_contract_creation,etherscan_transactions, retrieve_events
+from utils.information import etherscan_contract_creation, etherscan_transactions, retrieve_events
 
 
 @patch('utils.information.requests')
@@ -41,7 +41,8 @@ def test_basic_information_valid(request_mock):
 
     }
 
-    eth.get_proxy_transaction_by_hash = Mock(return_value={"blockNumber": 16361554})
+    eth.get_proxy_transaction_by_hash = Mock(
+        return_value={"blockNumber": 16361554})
     eth.get_proxy_block_by_number = Mock(return_value={"timestamp": timestamp})
     request_mock.get.return_value = mock_response
     address = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
@@ -56,8 +57,9 @@ def test_empty_transaction_retrieval():
     eth.get_normal_txs_by_address = Mock(return_value=[])
     eth.get_internal_txs_by_address = Mock(return_value=[])
     eth.get_proxy_block_number = Mock(return_value="16361554")
-    assert etherscan_transactions(address,eth,100000) == ([],[])
-    
+    assert etherscan_transactions(address, eth, 100000) == ([], [])
+
+
 def test_random_transaction_data_retrieval():
     address = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
     normal = ["sent 1 eth", "sent 2 eth"]
@@ -66,7 +68,8 @@ def test_random_transaction_data_retrieval():
     eth.get_normal_txs_by_address = Mock(return_value=normal)
     eth.get_internal_txs_by_address = Mock(return_value=internal)
     eth.get_proxy_block_number = Mock(return_value="16361554")
-    assert etherscan_transactions(address,eth,100000) == (normal,internal)
+    assert etherscan_transactions(address, eth, 100000) == (normal, internal)
+
 
 @patch('utils.information.web3prov')
 def test_empty_event_retrieval(web3_mock):
@@ -75,11 +78,13 @@ def test_empty_event_retrieval(web3_mock):
     eth = Mock()
     web3_mock.eth.get_logs = mock_response
     eth.get_proxy_block_number = Mock(return_value="16361554")
-    assert retrieve_events(address,eth,100000,10000) == []
-  
-@patch('utils.information.web3prov')  
+    assert retrieve_events(address, eth, 100000, 10000) == []
+
+
+@patch('utils.information.web3prov')
 def test_random_event_data_retrieval(web3_mock):
-    test_events = ["loggin some transfer", "logging another transfer", "another one"]
+    test_events = ["loggin some transfer",
+                   "logging another transfer", "another one"]
     reverse_events = test_events
     reverse_events.reverse()
     mock_response = Mock(return_value=test_events)
@@ -87,5 +92,5 @@ def test_random_event_data_retrieval(web3_mock):
     eth = Mock()
     web3_mock.eth.get_logs = mock_response
     eth.get_proxy_block_number = Mock(return_value="16361554")
-    
-    assert retrieve_events(address,eth,100000,10000) == reverse_events
+
+    assert retrieve_events(address, eth, 100000, 10000) == reverse_events

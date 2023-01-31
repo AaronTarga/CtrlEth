@@ -115,10 +115,12 @@ def entrypoint_by_function(_function, entrypoints, pc_to_block):
         return None
 
 
-# some additional analysis like storage lookups that isnt done in ethpector
-# receives ethpector results as input
 @disassembly_route.route("/load/<address>")
 def load_analysis(address):
+    '''
+    some additional analysis liformattingformattingke storage lookups that isnt done in ethpector
+    receives ethpector results as input
+    '''
 
     config = Configuration(SimpleNamespace(**use_args(
         etherscan_token=etherscan_token, ethpector_rpc=ethpector_rpc)))
