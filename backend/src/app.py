@@ -5,7 +5,7 @@ from celery.signals import setup_logging
 from utils import get_analysis, use_args
 from disassembly_routes import disassembly_route
 from information_routes import information_route
-from shared import app
+from shared import app,inspect, celery
 from utils.source import categorize_abi_names
 
 etherscan_token = os.environ.get('ETHERSCAN_TOKEN')
@@ -59,6 +59,21 @@ def analyse_source(address):
 
     return {"source_code": source_code, "source_abi": source_abi, "source_metadata": source_metadata, "functions": functions, "events": events}
 
+
+@app.route("/tasks")
+def get_tasks():
+    worker_tasks = inspect.active()
+    active_tasks = []
+    for worker in worker_tasks:
+        for task in worker_tasks[worker]:
+            formatted_task = {}
+            formatted_task['contract'] = task['args'][0]
+            formatted_task['args'] = task['args'][2]
+            formatted_task['timestamp'] = task['time_start']
+            formatted_task['type'] = task['type']
+            formatted_task['id'] = task['id']
+            active_tasks.append(formatted_task)
+    return  { "tasks": active_tasks }
 
 @app.route("/tasks/<task_id>")
 def get_status(task_id):
