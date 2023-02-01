@@ -10,10 +10,8 @@ import Tab from '@mui/material/Tab';
 import theme from '../themes/theme';
 
 const StyledInput = styled(ContractInput)`
-  width: 80%;
+  width: 100%;
   padding: 0.4em;
-  float: right;
-  clear: right;
 `;
 
 const StyledHeader = styled.header`
@@ -30,17 +28,8 @@ const StyledHeader = styled.header`
 const HeaderContainer = styled.div`
   display: grid;
   align-items: center;
-  first:child {
-    justify-content: start;
-  }
-  last:child {
-    justify-content: end;
-  }
-  nth:child(2) {
-    justify-content: center;
-  }
-  padding: 0 20px;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  padding: 20px 20px;
 `;
 
 const StyledImage = styled.img`
@@ -55,17 +44,15 @@ const HomeLink = styled(Link)`
   color: inherit;
 `;
 
-const StyledTitle = styled.h1`
-  color: white;
-  outline: none;
-`;
-
 const StartHeader = styled.div`
   text-align: left;
 `;
 
+const CenterHeader = styled.div`
+  width: 100%;
+`
+
 const EndHeader = styled.div`
-  text-align: left;
   padding-left: 1em;
 `;
 
@@ -140,11 +127,11 @@ export default function Header({ address, setAddress }: HeaderProps) {
           <StyledImage src={Ethpector} alt="Logo" id="logo" />
           <HomeLink to={'/'}>CtrlEth</HomeLink>
         </StartHeader>
-        <div>
-          <StyledTitle>Contract: {address}</StyledTitle>
-        </div>
+        <CenterHeader>
+          <StyledInput addressInput={address} centered={true} onChange={onChange} />
+        </CenterHeader>
         <EndHeader>
-          <StyledInput addressInput={address} onChange={onChange} />
+          Settings
         </EndHeader>
       </HeaderContainer>
       <Tabs
