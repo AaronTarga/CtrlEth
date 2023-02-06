@@ -177,17 +177,28 @@ export type DisassemblyResponse = {
 };
 
 export type TaskResponse = {
-    tasks: Array<Task>;
+  tasks: Array<Task>;
 }
 
 export type Task = {
-    contract: string,
-    args: object,
-    timestamp: string,
-    type: string,
-    id: string,
-    status: "active" | "waiting",
+  contract: string,
+  args: object,
+  timestamp: string,
+  type: string,
+  id: string,
+  status: "active" | "waiting",
 };
+
+export type Settings = {
+  etherscan: string | undefined,
+  rpc: string | undefined,
+  mythril: {
+    executionTimeout: number,
+    createTimeout: number,
+    maxDepth: number,
+    solverTimeout: number
+  }
+}
 
 export type SourceCode = {
   source_code: string;
