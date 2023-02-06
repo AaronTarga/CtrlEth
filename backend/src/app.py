@@ -7,6 +7,7 @@ from disassembly_routes import disassembly_route
 from information_routes import information_route
 from shared import app, inspect, celery
 from utils.source import categorize_abi_names
+from utils.format import str_timestamp_to_date
 
 etherscan_token = os.environ.get('ETHERSCAN_TOKEN')
 ethpector_rpc = os.environ.get('ETHPECTOR_RPC')
@@ -67,7 +68,7 @@ def queued_tasks(task_dict, status):
             formatted_task = {}
             formatted_task['contract'] = task['args'][0]
             formatted_task['args'] = task['args'][2]
-            formatted_task['timestamp'] = task['time_start']
+            formatted_task['timestamp'] = str_timestamp_to_date(int(task['time_start']))
             formatted_task['type'] = task['type']
             formatted_task['id'] = task['id']
             formatted_task['status'] = status
@@ -80,7 +81,6 @@ def queued_tasks(task_dict, status):
 def get_tasks():
     worker_tasks = inspect.active()
     received_tasks = inspect.reserved()
-    print(received_tasks)
     tasks = []
 
     tasks += queued_tasks(worker_tasks, "active")

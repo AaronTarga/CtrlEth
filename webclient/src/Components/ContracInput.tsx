@@ -19,7 +19,7 @@ const StyledContractInput = styled(Autocomplete)`
   background: white;
 `;
 
-export default function ContractInput({ addressInput, onChange, disabled = false, ...props }: ContractInputProps) {
+export default function ContractInput({ addressInput, onChange, disabled = false, centered=false, ...props }: ContractInputProps) {
   type Item = {
     contract: string;
   };
@@ -45,7 +45,7 @@ export default function ContractInput({ addressInput, onChange, disabled = false
       onChange={onChange}
       value={addressInput}
       options={options.map((option) => option.contract)}
-      renderInput={(params) => <TextField sx={ props.centered ? {input: {textAlign: "center"}} : {}} variant="standard" {...params} placeholder="Search" />}
+      renderInput={(params) => <TextField sx={ centered ? {input: {textAlign: "center"}} : {}} variant="standard" {...params} placeholder="Search" />}
     />
   );
 }

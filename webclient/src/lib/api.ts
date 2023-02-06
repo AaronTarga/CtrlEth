@@ -1,4 +1,4 @@
-import { ApiResult, BasicContract, ContractEvents, ContractTransactions, DisassemblyResponse, DisassemblyState, SourceCode } from "../types/types";
+import { ApiResult, BasicContract, ContractEvents, ContractTransactions, DisassemblyResponse, DisassemblyState, SourceCode, TaskResponse } from "../types/types";
 
 export type TaskState = {
   task_id: string;
@@ -11,8 +11,9 @@ export class ApiController {
 
   private handleError(error: Error): number {
 
-    if (error.message === 'AbortError') {
-      console.log("Request has been cancelled!");
+    if (error.name === 'AbortError') {
+      console.log("Request aborted!")
+      return 299;
     } else {
       console.error(error);
     }
@@ -56,6 +57,10 @@ export class ApiController {
 
   async getCachedDisassembly(address: string, signal: AbortSignal): Promise<ApiResult<DisassemblyResponse | DisassemblyState>> {
     return this.handleResponse("/disassembly/load/" + address, signal);
+  }
+
+  async getActiveTasks(signal: AbortSignal): Promise<ApiResult<TaskResponse>>{
+    return this.handleResponse("/tasks",signal);
   }
 }
 

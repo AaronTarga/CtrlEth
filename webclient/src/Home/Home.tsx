@@ -76,7 +76,7 @@ export default function Home() {
         Change Settings
       </StyledButton>
       <StyledButton color="primary" variant='contained' onClick={gotoTasks}>
-        Manage Tasks
+        View Tasks
       </StyledButton>
     </Centered>
     

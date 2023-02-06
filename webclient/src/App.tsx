@@ -9,7 +9,7 @@ import { theme } from './themes/theme';
 import { ThemeProvider } from '@mui/material/styles';
 import { SelectContext } from './Context';
 import { useState } from 'react';
-import Tasks from './Tasks/tasks';
+import Tasks from './Tasks/Tasks';
 
 function App() {
   const [select, setSelect] = useState(false);
