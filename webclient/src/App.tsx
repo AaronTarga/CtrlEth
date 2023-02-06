@@ -9,6 +9,7 @@ import { theme } from './themes/theme';
 import { ThemeProvider } from '@mui/material/styles';
 import { SelectContext } from './Context';
 import { useState } from 'react';
+import Tasks from './Tasks/tasks';
 
 function App() {
   const [select, setSelect] = useState(false);
@@ -24,6 +25,8 @@ function App() {
             <Route path={'source'} element={<Source />}></Route>
             <Route path={'information'} element={<Information />}></Route>
           </Route>
+
+          <Route path={'tasks'} element={<Tasks/>}/>
 
           <Route
             path="*"

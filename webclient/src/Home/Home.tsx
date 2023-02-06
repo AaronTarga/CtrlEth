@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import ContractInput from '../Components/ContracInput';
 import styled from '@emotion/styled';
-import { AutocompleteChangeDetails, AutocompleteChangeReason, Paper } from '@mui/material';
+import { AutocompleteChangeDetails, AutocompleteChangeReason, Button, Paper } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
 
@@ -34,6 +34,12 @@ const StyledContractInput = styled(ContractInput)`
   padding: 0.5em 0;
 `;
 
+const StyledButton = styled(Button)`
+  margin-top: 2em;
+  align-items: center;
+  width: 100%;
+`
+
 export default function Home() {
   const [addressInput, setAddressInput] = useState<string>();
 
@@ -51,6 +57,14 @@ export default function Home() {
     }
   };
 
+  const gotoTasks = () => {
+    navigate('/tasks')
+  }
+
+  const configureOptions = () => {
+    //TODO: open options dialog
+  }
+
   return (
     <Centered>
       <Title>CtrlEth</Title>
@@ -58,6 +72,13 @@ export default function Home() {
         <StyledSearchIcon />
         <StyledContractInput id="search-input" addressInput={addressInput} onChange={onChange} />
       </StyledPaper>
+      <StyledButton color="primary" variant='contained' onClick={configureOptions}>
+        Change Settings
+      </StyledButton>
+      <StyledButton color="primary" variant='contained' onClick={gotoTasks}>
+        Manage Tasks
+      </StyledButton>
     </Centered>
+    
   );
 }

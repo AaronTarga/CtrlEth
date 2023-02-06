@@ -3,11 +3,12 @@ import React, { useEffect, useState, useRef } from 'react';
 import ContractInput from '../Components/ContracInput';
 import Ethpector from './../assets/images/Ethpector.png';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { AutocompleteChangeDetails, AutocompleteChangeReason } from '@mui/material';
+import { AutocompleteChangeDetails, AutocompleteChangeReason, IconButton } from '@mui/material';
 import { HEADER_HEIGHT } from '../lib/constant';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import theme from '../themes/theme';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const StyledInput = styled(ContractInput)`
   width: 100%;
@@ -53,7 +54,8 @@ const CenterHeader = styled.div`
 `
 
 const EndHeader = styled.div`
-  padding-left: 1em;
+  padding-right: 2em;
+  text-align: right;
 `;
 
 type HeaderProps = {
@@ -131,7 +133,9 @@ export default function Header({ address, setAddress }: HeaderProps) {
           <StyledInput addressInput={address} centered={true} onChange={onChange} />
         </CenterHeader>
         <EndHeader>
-          Settings
+          <IconButton >
+            <SettingsIcon style={{color: "white", transform: "scale(1.8)"}}/>
+          </IconButton>
         </EndHeader>
       </HeaderContainer>
       <Tabs
