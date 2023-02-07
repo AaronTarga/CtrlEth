@@ -218,19 +218,19 @@ def analyse_disassembly(address):
     except JSONDecodeError:
         body = None
 
-    token = etherscan_token
-    rpc = ethpector_rpc
-    mythril_args = None
+    token = request.args.get('etherscan')
+    rpc = request.args.get('rpc')
 
-    if body:
-        if "mythril" in body:
-            mythril_args = body['mythril']
-
-        if "secrets" in body:
-            if "etherscan" in body['secrets']:
-                token = body['secrets']['etherscan']
-            if "rpc" in body['secrets']:
-                rpc = body['secrets']['rpc']
+    execution_timeout = request.args.get('execution_timeout')
+    create_timeout = request.args.get('create_timeout')
+    max_depth = request.args.get('max_depth')
+    solver_timeout = request.args.get('solver_timeout')
+    mythril_args = {
+        "execution_timeout": execution_timeout,
+        "create_timeout": create_timeout,
+        "max_depth": max_depth,
+        "solver_timeout": solver_timeout
+    }
 
     try:
         get_disassembly.delay(address, use_args(

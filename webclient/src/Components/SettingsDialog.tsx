@@ -44,7 +44,6 @@ export function SettingsDialog(props: DialogProps) {
             onChange={(event) => {
               setLocalSettings({ ...localSettings, etherscan: event.target.value });
             }}
-            defaultValue={settings.etherscan}
           />
           <TextField
             id="rpc"
@@ -57,7 +56,6 @@ export function SettingsDialog(props: DialogProps) {
             onChange={(event) => {
               setLocalSettings({ ...localSettings, rpc: event.target.value });
             }}
-            defaultValue={settings.rpc}
           />
           <TextField
             id="execution-timeout"
@@ -73,7 +71,6 @@ export function SettingsDialog(props: DialogProps) {
                 mythril: { ...localSettings.mythril, executionTimeout: event.target.value },
               });
             }}
-            defaultValue={settings.mythril.executionTimeout}
           />
           <TextField
             id="create-timeout"
@@ -89,7 +86,6 @@ export function SettingsDialog(props: DialogProps) {
                 mythril: { ...localSettings.mythril, createTimeout: event.target.value },
               });
             }}
-            defaultValue={settings.mythril.createTimeout}
           />
           <TextField
             id="max-depth"
@@ -99,7 +95,6 @@ export function SettingsDialog(props: DialogProps) {
               shrink: true,
             }}
             value={localSettings.mythril.maxDepth}
-            defaultValue={settings.mythril.maxDepth}
             onChange={(event) => {
               setLocalSettings({
                 ...localSettings,
@@ -121,7 +116,6 @@ export function SettingsDialog(props: DialogProps) {
                 mythril: { ...localSettings.mythril, solverTimeout: event.target.value },
               });
             }}
-            defaultValue={settings.mythril.solverTimeout}
           />
         </Stack>
       </DialogContent>

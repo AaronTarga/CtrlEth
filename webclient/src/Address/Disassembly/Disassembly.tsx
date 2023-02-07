@@ -27,7 +27,7 @@ import { Tab, Tabs, CircularProgress, Alert, Snackbar, Typography, Button } from
 import { prettyFunctionName } from '../../lib/formatting';
 import Paper from '@mui/material/Paper';
 import theme from '../../themes/theme';
-import { SelectContext } from '../../Context';
+import { SelectContext, SettingsContext } from '../../Context';
 import Filter from './Filter';
 import { DRAWER_TOP_HEIGHT } from '../../lib/constant';
 import FunctionDetail from './FunctionDetail';
@@ -112,13 +112,14 @@ export default function Disassembly() {
   const [graphData, setGraphData] = useState<GraphData[]>();
   const [types, setTypes] = useState<{ [key in NodeType]: number }>();
   const [graphBarAlert, setGraphBarAlert] = useState(false);
+  const {settings} = useContext(SettingsContext)
 
   const startTask = () => {
     let apiController = new ApiController();
     const controller = new AbortController();
     const signal = controller.signal;
     if (address != null) {
-      apiController.getAddressDisassembly(address,signal).then((result: ApiResult<DisassemblyState>) => {
+      apiController.getAddressDisassembly(address,signal,settings).then((result: ApiResult<DisassemblyState>) => {
         if (result.data !== null) {
           setDisassemblyAddress(result.data)
         }
