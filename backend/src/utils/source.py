@@ -18,4 +18,4 @@ def categorize_abi_names(source_abi):
         elif (abi['type'] == 'function'):
             functions.append(signature)
 
-    return (events,functions)
+    return (events, functions)

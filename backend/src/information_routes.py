@@ -21,6 +21,7 @@ etherscan_token = os.environ.get('ETHERSCAN_TOKEN')
 ethpector_rpc = os.environ.get('ETHPECTOR_RPC')
 eth = Etherscan(etherscan_token)
 
+
 def extract_account_summary(address):
 
     config = Configuration(SimpleNamespace(**use_args(
@@ -63,14 +64,14 @@ def get_information(address):
     account_summary = extract_account_summary(address)
 
     if not is_valid_address(account_summary):
-        return account_summary['task_error']['message'],account_summary['task_error']['status']
+        return account_summary['task_error']['message'], account_summary['task_error']['status']
 
     if (not account_summary.is_contract):
-            data = {
-                "type": "external",
-                "balance": Web3.fromWei(int(account_summary.balance), 'ether'),
-            }
-            return data
+        data = {
+            "type": "external",
+            "balance": Web3.fromWei(int(account_summary.balance), 'ether'),
+        }
+        return data
 
     balance = eth.get_eth_balance(address=address)
     source = eth.get_contract_source_code(address=address)
@@ -90,8 +91,8 @@ def get_information(address):
     redis.set_routes_to_cache(cache_key, value=json.dumps(
         data, cls=DecimalEncoder), ttl=ttl)
 
-
     return data
+
 
 @information_route.route("/transactions/<address>")
 def get_transactions(address):
@@ -105,7 +106,7 @@ def get_transactions(address):
     account_summary = extract_account_summary(address)
 
     if not is_valid_address(account_summary):
-        return account_summary['task_error']['message'],account_summary['task_error']['status']
+        return account_summary['task_error']['message'], account_summary['task_error']['status']
 
     source = eth.get_contract_source_code(address=address)
 
@@ -122,7 +123,6 @@ def get_transactions(address):
             source_abi = None
 
         decode_transactions(address, tx_limited, abi=source_abi)
-
 
         data = {
             "normalTransactions": format_transactions(tx_limited),
@@ -151,7 +151,7 @@ def get_events(address):
     account_summary = extract_account_summary(address)
 
     if not is_valid_address(account_summary):
-        return account_summary['task_error']['message'],account_summary['task_error']['status']
+        return account_summary['task_error']['message'], account_summary['task_error']['status']
 
     source = eth.get_contract_source_code(address=address)
 
@@ -162,12 +162,12 @@ def get_events(address):
         except:
             source_abi = None
 
-        events = retrieve_events(address, eth, max_blocks,starting_max)
+        events = retrieve_events(address, eth, max_blocks, starting_max)
 
-        events = decode_events(address,events,source_abi)
+        events = decode_events(address, events, source_abi)
 
         data = {
-          "events": events
+            "events": events
         }
 
         redis.set_routes_to_cache(cache_key, value=json.dumps(

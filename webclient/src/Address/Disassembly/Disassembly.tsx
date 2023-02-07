@@ -27,7 +27,7 @@ import { Tab, Tabs, CircularProgress, Alert, Snackbar, Typography, Button } from
 import { prettyFunctionName } from '../../lib/formatting';
 import Paper from '@mui/material/Paper';
 import theme from '../../themes/theme';
-import { SelectContext } from '../../Context';
+import { SelectContext, SettingsContext } from '../../Context';
 import Filter from './Filter';
 import { DRAWER_TOP_HEIGHT } from '../../lib/constant';
 import FunctionDetail from './FunctionDetail';
@@ -95,7 +95,8 @@ const drawerModes: Array<{ display: string; name: DrawerMode }> = [
 export default function Disassembly() {
   const { address } = useAddress();
   const [error, setError] = useState<any>();
-  const [loading, setLoading] = useState(false);
+  const [graphLoading, setGraphLoading] = useState(false);
+  const [cachedLoading, setCachedLoading] = useState(false);
   const [currentAddress, setCurrentAddress] = useState<string | null>();
   const { select, setSelect } = useContext(SelectContext);
   const [filter, setFilter] = useState<GraphFilter>({ function: null, type: null });
@@ -111,13 +112,14 @@ export default function Disassembly() {
   const [graphData, setGraphData] = useState<GraphData[]>();
   const [types, setTypes] = useState<{ [key in NodeType]: number }>();
   const [graphBarAlert, setGraphBarAlert] = useState(false);
+  const {settings} = useContext(SettingsContext)
 
   const startTask = () => {
     let apiController = new ApiController();
     const controller = new AbortController();
     const signal = controller.signal;
     if (address != null) {
-      apiController.getAddressDisassembly(address,signal).then((result: ApiResult<DisassemblyState>) => {
+      apiController.getAddressDisassembly(address,signal,settings).then((result: ApiResult<DisassemblyState>) => {
         if (result.data !== null) {
           setDisassemblyAddress(result.data)
         }
@@ -141,6 +143,7 @@ export default function Disassembly() {
     setFilter({ function: null, type: null });
     setSelect(false);
     setBlockDetail(undefined)
+    setError(undefined)
   }, [address, setSelect]);
 
   useEffect(() => {
@@ -177,17 +180,17 @@ export default function Disassembly() {
     const controller = new AbortController();
     const signal = controller.signal;
 
-    setLoading(true);
+    setCachedLoading(true);
     setDisassemblyAddress(undefined);
     let apiController = new ApiController();
 
     apiController.getCachedDisassembly(currentAddress, signal).then((response: ApiResult<DisassemblyResponse | DisassemblyState>) => {
       if (response.data !== null) {
-        setLoading(false);
+        setCachedLoading(false);
         setDisassemblyAddress(response.data);
         setError(response.error)
       } else {
-        setLoading(false);
+        setCachedLoading(false);
         setDisassemblyAddress(response.data)
         setError(response.error)
       }
@@ -198,7 +201,7 @@ export default function Disassembly() {
       setDisassemblyAddress(undefined);
       setError(undefined);
     };
-  }, [currentAddress, setLoading]);
+  }, [currentAddress, setCachedLoading]);
 
   useEffect(() => {
     if (
@@ -354,13 +357,22 @@ export default function Disassembly() {
         }
       }
 
-      cy.on('select', (event) => {
+      cy.on('select','node', (event) => {
         const id = event.target.data()['id'];
         if (id !== null) {
           setBlockDetail(blockRef.current['blocks'][id]);
+          setDrawerView('detail')
         }
         cy.$(`#${id}`).addClass('highlight');
       });
+
+      cy.on('layoutstart', (event) => {
+        setGraphLoading(true);
+      })
+
+      cy.on('layoutstop', (event) => {
+        setGraphLoading(true)
+      })
 
       cy.on('unselect', (event) => {
         const id = event.target.data()['id'];
@@ -376,16 +388,26 @@ export default function Disassembly() {
 
   var errorText = undefined;
 
-  if (loading) {
+  if (graphLoading) {
     errorText = (
       <>
         <CircularProgress color="secondary" sx={{ mt: '2em' }} />
-        <ErrorText>Loading data and building graph</ErrorText>
+        <ErrorText>Building graph</ErrorText>
       </>
     );
   }
+
+  if (cachedLoading) {
+    errorText = (
+      <>
+        <CircularProgress color="secondary" sx={{ mt: '2em' }} />
+        <ErrorText>Checking cache for avaialable analysis</ErrorText>
+      </>
+    );
+  }
+
   var graph = undefined;
-  if (!loading && !error && disassemblyAddress && !isDisassemblyState(disassemblyAddress) ) {
+  if (!graphLoading && !cachedLoading && !error && disassemblyAddress && !isDisassemblyState(disassemblyAddress) ) {
     graph = (
       <DisassemblyContainer>
         <GraphView style={drawerView !== 'empty' ? { width: '50%' } : {}}>

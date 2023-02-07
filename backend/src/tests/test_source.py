@@ -1,10 +1,9 @@
 from utils.source import categorize_abi_names
 import json
 
-# TODO basically just one or two test cases mocking get_analysis
-
 abi = json.loads('''[
     {
+    "constant": false,
     "constant": false,
     "inputs": [
       {
@@ -94,14 +93,19 @@ invalid_abi = json.loads('''[
   }
     ]''')
 
+
 def test_abi_categorization_none():
     assert categorize_abi_names(None) == ([], [])
 
+
 def test_wrong_type_abi_categorization():
-    assert categorize_abi_names("This is no abi") == ([],[])
+    assert categorize_abi_names("This is no abi") == ([], [])
+
 
 def test_invalid_entry_abi_categorization():
     assert categorize_abi_names(invalid_abi) == ([], ["totalSupply()"])
 
+
 def test_valid_abi_categorization():
-    assert categorize_abi_names(abi) == (["Assign(address,uint256)","PunkNoLongerForSale(uint256)"], ["enterBidForPunk(uint256)","totalSupply()"])
+    assert categorize_abi_names(abi) == (["Assign(address,uint256)", "PunkNoLongerForSale(uint256)"], [
+        "enterBidForPunk(uint256)", "totalSupply()"])

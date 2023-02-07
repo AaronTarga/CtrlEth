@@ -1,16 +1,17 @@
 import json
 from mythril.analysis.ops import get_variable, VarType
 
-# checks if instructions is conditional jump
+
 def is_conditional_jump(last):
+    # checks if instructions is conditional jump
     if last is None:
         return False
     else:
         return last.is_jumpi()
 
 
-# generate jumps depending on wether it is static or conditional
 def generate_jumps(bb, pc_to_block, conditional=False):
+    # generate jumps depending on wether it is static or conditional
     target = bb.get_next_block_true_branch()
     jumps = []
     if target is not None and target in pc_to_block:
@@ -23,18 +24,17 @@ def generate_jumps(bb, pc_to_block, conditional=False):
 
     return jumps
 
-# adding all annotations to the basic block object
-
 
 def add_annotations(bb, symbolic, disassembly):
+    # adding all annotations to the basic block object
     for inst in bb.instructions:
         inst.annotations += symbolic.get_annotations_valid_at(inst.pc())
         inst.annotations += disassembly.get_annotations_valid_at(inst.pc())
     bb.propagage_block_annotations()
 
 
-# convert basic block to json
 def create_block_dict(_id, bb):
+    # convert basic block to json
     block_dict = {}
     block_dict['types'] = []
     block_dict['i'] = _id
@@ -62,12 +62,13 @@ priorities = {
     "push": 13,
 }
 
-# append types depending on priority
-# if priority is greater it keeps looping until meet its place in list
-# if priority is equal it does not add to the types array because we do not want duplicates
-
 
 def addTypeToBlock(block, newType):
+    '''
+    append types depending on priority
+    if priority is greater it keeps looping until meet its place in list
+    if priority is equal it does not add to the types array because we do not want duplicates
+    '''
     i = 0
     block['types'].append(newType)
     block['types'] = list(filter(lambda item: item in block['types'], [

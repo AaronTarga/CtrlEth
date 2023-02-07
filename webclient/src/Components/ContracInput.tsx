@@ -11,6 +11,7 @@ type ContractInputProps = {
   ) => void;
   disabled?: boolean;
   id?: string;
+  centered?: boolean;
 };
 
 const StyledContractInput = styled(Autocomplete)`
@@ -18,11 +19,11 @@ const StyledContractInput = styled(Autocomplete)`
   background: white;
 `;
 
-export default function ContractInput({ addressInput, onChange, disabled = false, ...props }: ContractInputProps) {
+export default function ContractInput({ addressInput, onChange, disabled = false, centered=false, ...props }: ContractInputProps) {
   type Item = {
     contract: string;
   };
-
+  
   let options: Item[] = [
     { contract: '0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB' },
     { contract: '0x06012c8cf97BEaD5deAe237070F9587f8E7A266d' },
@@ -44,7 +45,7 @@ export default function ContractInput({ addressInput, onChange, disabled = false
       onChange={onChange}
       value={addressInput}
       options={options.map((option) => option.contract)}
-      renderInput={(params) => <TextField variant="standard" {...params} placeholder="Search" />}
+      renderInput={(params) => <TextField sx={ centered ? {input: {textAlign: "center"}} : {}} variant="standard" {...params} placeholder="Search" />}
     />
   );
 }

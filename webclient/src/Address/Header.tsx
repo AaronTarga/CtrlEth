@@ -3,17 +3,16 @@ import React, { useEffect, useState, useRef } from 'react';
 import ContractInput from '../Components/ContracInput';
 import Ethpector from './../assets/images/Ethpector.png';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { AutocompleteChangeDetails, AutocompleteChangeReason } from '@mui/material';
+import { AutocompleteChangeDetails, AutocompleteChangeReason, IconButton } from '@mui/material';
 import { HEADER_HEIGHT } from '../lib/constant';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import theme from '../themes/theme';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const StyledInput = styled(ContractInput)`
-  width: 80%;
+  width: 100%;
   padding: 0.4em;
-  float: right;
-  clear: right;
 `;
 
 const StyledHeader = styled.header`
@@ -30,17 +29,8 @@ const StyledHeader = styled.header`
 const HeaderContainer = styled.div`
   display: grid;
   align-items: center;
-  first:child {
-    justify-content: start;
-  }
-  last:child {
-    justify-content: end;
-  }
-  nth:child(2) {
-    justify-content: center;
-  }
-  padding: 0 20px;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  padding: 20px 20px;
 `;
 
 const StyledImage = styled.img`
@@ -55,18 +45,17 @@ const HomeLink = styled(Link)`
   color: inherit;
 `;
 
-const StyledTitle = styled.h1`
-  color: white;
-  outline: none;
-`;
-
 const StartHeader = styled.div`
   text-align: left;
 `;
 
+const CenterHeader = styled.div`
+  width: 100%;
+`
+
 const EndHeader = styled.div`
-  text-align: left;
-  padding-left: 1em;
+  padding-right: 2em;
+  text-align: right;
 `;
 
 type HeaderProps = {
@@ -140,11 +129,13 @@ export default function Header({ address, setAddress }: HeaderProps) {
           <StyledImage src={Ethpector} alt="Logo" id="logo" />
           <HomeLink to={'/'}>CtrlEth</HomeLink>
         </StartHeader>
-        <div>
-          <StyledTitle>Contract: {address}</StyledTitle>
-        </div>
+        <CenterHeader>
+          <StyledInput addressInput={address} centered={true} onChange={onChange} />
+        </CenterHeader>
         <EndHeader>
-          <StyledInput addressInput={address} onChange={onChange} />
+          <IconButton >
+            <SettingsIcon style={{color: "white", transform: "scale(1.8)"}}/>
+          </IconButton>
         </EndHeader>
       </HeaderContainer>
       <Tabs

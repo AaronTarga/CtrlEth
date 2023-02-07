@@ -48,7 +48,6 @@ export default function Source() {
 
     setLoading(true);
 
-
     apiController.getAddressSource(currentAddress, signal).then((response: ApiResult<SourceCode>) => {
       if (response.data !== null) {
           setAddressSource(response.data);
