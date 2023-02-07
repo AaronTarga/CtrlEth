@@ -77,6 +77,7 @@ export default function Home() {
   const saveSettings = (settings: Settings) => {
     setOpenSettings(false);
     setSettings(settings);
+    localStorage.setItem('settings', JSON.stringify(settings));
   };
 
   return (
@@ -96,3 +97,4 @@ export default function Home() {
     </Centered>
   );
 }
+
