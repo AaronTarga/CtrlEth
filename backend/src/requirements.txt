@@ -6,3 +6,4 @@ redis
 Flask-CeleryExt
 kombu
 celery_once
+pymongo
