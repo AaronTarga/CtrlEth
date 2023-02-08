@@ -21,6 +21,7 @@ services:
       - FLASK_APP=app
     depends_on:
       - redis
+      - mongodb
 
   redis-overcommit:
     build: https://github.com/bkuhl/redis-overcommit-on-host.git
@@ -48,6 +49,7 @@ services:
       - FLASK_APP=app
     depends_on:
       - redis
+      - mongodb
 
   flower:
     image: mher/flower:1.2
@@ -56,4 +58,17 @@ services:
     ports: 
         - 5555:5555
     depends_on: 
-        - redis
+        - celery_worker
+
+  mongodb:
+    image: mongodb/mongodb-community-server:6.0-ubi8
+    environment:
+      MONGO_INITDB_DATABASE: "ctrleth"
+    env_file:
+      - .env
+    volumes:
+        - mongodata:/data/db
+
+volumes:
+  mongodata:
+    external: false
