@@ -18,7 +18,7 @@ export function AbiDialog(props: SimpleDialogProps) {
     const { open, items, title, onClose } = props;
 
     return (
-        <Dialog open={open}>
+        <Dialog open={open} onClose={onClose}>
             <DialogTitle>{title}</DialogTitle>
             <DialogContent>
                 <List sx={{ pt: 0 }}>

@@ -1,5 +1,5 @@
 import os
-from flask import Blueprint
+from flask import Blueprint, request
 from utils.disassembly import add_annotations, add_symbolics, create_block_dict, is_conditional_jump, generate_jumps, add_event_lookups, add_storage_lookups
 from utils import get_analysis, use_args
 from ethpector.data.node import NodeProvider
@@ -8,6 +8,7 @@ from networkx.readwrite import json_graph
 from ethpector.data.datatypes import to_json
 from datatypes.json_mapping import json_to_assembly, json_to_basic_blocks, json_to_symbolic
 import json
+from json import JSONDecodeError
 from celery_once import QueueOnce
 from shared import celery, redis
 import dataclasses
@@ -16,6 +17,8 @@ from celery_once import AlreadyQueued
 from ethpector.config import Configuration
 from types import SimpleNamespace
 from celery_once.helpers import queue_once_key
+from utils.mongo import Mongo
+from sys import getsizeof
 
 disassembly_route = Blueprint('disassembly', __name__,)
 
@@ -24,13 +27,29 @@ ethpector_rpc = os.environ.get('ETHPECTOR_RPC')
 
 disassembly_task_name = "get_disassembly"
 
+#Need to decode ints into strings because some integers are too large for mongodb to store
+class IntDecoder(json.JSONDecoder):
+    def decode(self, s):
+        result = super().decode(s) 
+        return self._decode(result)
+
+    def _decode(self, o):
+        if isinstance(o, int):
+                return str(o)
+        elif isinstance(o, dict):
+            return {k: self._decode(v) for k, v in o.items()}
+        elif isinstance(o, list):
+            return [self._decode(v) for v in o]
+        else:
+            return o
+
 @celery.task(name=disassembly_task_name, base=QueueOnce, once={'keys': ['address']})
-def get_disassembly(address, args):
+def get_disassembly(address, args, mythril_args=None):
     # add task id to redis cache if multiple users load same contract only one task started
     data = redis.get_routes_from_cache(key=address)
     if (data is None):
         try:
-            analysis = get_analysis(address, args)
+            analysis = get_analysis(address, args, mythril_args)
         except ValueError as valueError:
             # not found if valueError
             return {"task_error": {"message": str(valueError), "status": 404}}
@@ -85,19 +104,19 @@ def get_disassembly(address, args):
         functions = [{"entrypoint": entrypoint_by_function(
             _function, disassembly_summary.function_entrypoints, pc_to_block), "function": dataclasses.asdict(_function)} for _function in found_functions]
 
-        data = to_json({"symbolic_summary": symbolic_summary,
+        data = to_json({"contract": address,"symbolic_summary": symbolic_summary,
                        "disassembly_summary": disassembly_summary, "bbs": bbs, "links": links, "pc_to_block": pc_to_block, "functions": functions})
-        # caching result at the end
-        redis.set_routes_to_cache(key=address, value=data)
+        # saving result in mongodb at the end
+        mongo = Mongo()
+        mongo.db['contracts'].insert_one(json.loads(data,cls=IntDecoder))
+        mongo.close()
 
     return address
 
-# cast dict keys to int
-
 
 def jsonKeys2int(x):
+    # cast dict keys to int
     if isinstance(x, dict):
-
         return {int(k): v for k, v in x.items()}
     return x
 
@@ -114,10 +133,12 @@ def entrypoint_by_function(_function, entrypoints, pc_to_block):
         return None
 
 
-# some additional analysis like storage lookups that isnt done in ethpector
-# receives ethpector results as input
 @disassembly_route.route("/load/<address>")
 def load_analysis(address):
+    '''
+    some additional analysis liformattingformattingke storage lookups that isnt done in ethpector
+    receives ethpector results as input
+    '''
 
     config = Configuration(SimpleNamespace(**use_args(
         etherscan_token=etherscan_token, ethpector_rpc=ethpector_rpc)))
@@ -125,24 +146,25 @@ def load_analysis(address):
     online_resolver = AggregateProvider(config)
     code = online_resolver.first_of(["node", "etherscan"]).get_code(address)
 
-    #invalid addresses have no code and external account addresses or selfdestructed contracts have 0x as code and cannot be analysed
+    # invalid addresses have no code and external account addresses or selfdestructed contracts have 0x as code and cannot be analysed
     if code == "0x":
         return "No bytecode at address", 404
 
     if code == None:
         return "Not a valid address", 400
 
-    data = redis.get_routes_from_cache(address)
+    mongo = Mongo()
+    data = mongo.db['contracts'].find_one({"contract": address})
+    mongo.close()
     if data == None:
         # if celery once key is found we now a task is still running
-        key = queue_once_key(disassembly_task_name,{"address": address,"args": use_args(
-        etherscan_token=etherscan_token, ethpector_rpc=ethpector_rpc)}, ["address"]) 
+        key = queue_once_key(disassembly_task_name, {"address": address, "args": use_args(
+            etherscan_token=etherscan_token, ethpector_rpc=ethpector_rpc)}, ["address"])
         if redis.get_routes_from_cache(key) != None:
             return {"state": 2}
-        
+
         return {"state": 1}
 
-    data = json.loads(data)
     disassembly_summary = json_to_assembly(data['disassembly_summary'])
     symbolic_summary = json_to_symbolic(data['symbolic_summary'])
     bbs = json_to_basic_blocks(data['bbs'])
@@ -169,15 +191,15 @@ def load_analysis(address):
 
     # calculate coverage
     ac = (
-        (disassembly_summary.unique_instructions_visited /
-         disassembly_summary.total_instructions)
-        if disassembly_summary.total_instructions > 0
+        (int(disassembly_summary.unique_instructions_visited) /
+         int(disassembly_summary.total_instructions))
+        if int(disassembly_summary.total_instructions) > 0
         else 0
     )
     sc = (
-        (symbolic_summary.unique_instructions_visited /
-         disassembly_summary.total_instructions)
-        if disassembly_summary.total_instructions > 0
+        (int(symbolic_summary.unique_instructions_visited) /
+         int(disassembly_summary.total_instructions))
+        if int(disassembly_summary.total_instructions) > 0
         else 0
     )
     coverage = {"assembly": ac, "symbolic": sc}
@@ -210,9 +232,23 @@ def get_disassembly_cfg(address, args):
 @disassembly_route.route("/<address>")
 def analyse_disassembly(address):
 
+    token = request.args.get('etherscan')
+    rpc = request.args.get('rpc')
+
+    execution_timeout = request.args.get('execution_timeout')
+    create_timeout = request.args.get('create_timeout')
+    max_depth = request.args.get('max_depth')
+    solver_timeout = request.args.get('solver_timeout')
+    mythril_args = {
+        "execution_timeout": int(execution_timeout),
+        "create_timeout": int(create_timeout),
+        "max_depth": int(max_depth),
+        "solver_timeout": int(solver_timeout)
+    }
+
     try:
         get_disassembly.delay(address, use_args(
-            etherscan_token=etherscan_token, ethpector_rpc=ethpector_rpc))
+            etherscan_token=token, ethpector_rpc=rpc), mythril_args)
     except AlreadyQueued:
         return {"state": 2}, 200
 

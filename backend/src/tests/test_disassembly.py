@@ -24,7 +24,8 @@ def test_storage_pc_not_mapped():
     pc = 12
     pc_to_block = {20: 0}
 
-    instructions = [ReportedInstructions([], [{"_class": "StorageLoad", "data": {}}])]
+    instructions = [ReportedInstructions(
+        [], [{"_class": "StorageLoad", "data": {}}])]
     bbs = [ReportedBasicBlocks(i=0, instructions=instructions, annotations=[
                                TypedAnnotation(_class="StorageLoad", data={})], nextBlockIndex=None)]
 
@@ -32,7 +33,6 @@ def test_storage_pc_not_mapped():
 
     symbolic = ReportedSymbolicExecSummary(
         [], [], [load], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], 0)
-
 
     try:
         add_storage_lookups(symbolic, address, bbs, pc_to_block, web_provider)
@@ -48,7 +48,8 @@ def test_storage_lookups():
     pc = 20
     pc_to_block = {20: 0}
 
-    instructions = [ReportedInstructions([], [{"_class": "StorageLoad", "data": {}}])]
+    instructions = [ReportedInstructions(
+        [], [{"_class": "StorageLoad", "data": {}}])]
     bbs = [ReportedBasicBlocks(i=0, instructions=instructions, annotations=[
                                TypedAnnotation(_class="StorageLoad", data={})], nextBlockIndex=None)]
 
@@ -58,9 +59,9 @@ def test_storage_lookups():
         [], [], [load], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], 0)
 
     add_storage_lookups(symbolic, address, bbs, pc_to_block, web_provider)
-    
+
     assert bbs[0].instructions[0].annotations[0]['data']['concreteValue'] == "0x577261707065642045746865720000000000000000000000000000000000001a"
-    
+
 
 def test_event_lookups_pc_not_mapped():
     signature_provider = Mock()
@@ -107,30 +108,33 @@ def test_event_lookups():
     assert bbs[0].instructions[0].annotations[0]['data'][
         'name'] == "Sent(uint256,uint256,bytes32,uint256[],address,uint256,bytes32,addresss)"
 
+
 def test_no_jump_target():
     bb = Mock()
     bb.get_next_block_true_branch = Mock(return_value=2)
     type(bb).i = PropertyMock(return_value=2)
-    
-    pc_to_block = {20: 3, 5: 1};
-    
-    assert generate_jumps(bb,pc_to_block) == []
-    
+
+    pc_to_block = {20: 3, 5: 1}
+
+    assert generate_jumps(bb, pc_to_block) == []
+
 
 def test_valid_true_jump_target():
     bb = Mock()
     bb.get_next_block_true_branch = Mock(return_value=20)
     type(bb).i = PropertyMock(return_value=2)
-    
-    pc_to_block = {20: 4, 5: 1};
-    
-    assert generate_jumps(bb,pc_to_block) == [{"source": 2, "target": 4}]
+
+    pc_to_block = {20: 4, 5: 1}
+
+    assert generate_jumps(bb, pc_to_block) == [{"source": 2, "target": 4}]
+
 
 def test_valid_false_jump_target():
     bb = Mock()
     bb.get_next_block_false_branch = Mock(return_value=4)
     type(bb).i = PropertyMock(return_value=2)
-    
-    pc_to_block = {};
-    
-    assert generate_jumps(bb,pc_to_block,conditional=True) == [{"source": 2, "target": 4, "condition": False}]
+
+    pc_to_block = {}
+
+    assert generate_jumps(bb, pc_to_block, conditional=True) == [
+        {"source": 2, "target": 4, "condition": False}]

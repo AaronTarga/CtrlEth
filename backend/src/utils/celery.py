@@ -3,10 +3,12 @@ from kombu import Queue, Exchange
 import os
 from utils.redis import ttl
 
+
 class CeleryOnceExcepton(Exception):
-    def __init__(self,message,status):
+    def __init__(self, message, status):
         self.message = message
         self.status = status
+
 
 def make_celery(app):
     # setting delivery mode to transient to avoid persisting messages which takes longer

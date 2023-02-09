@@ -1,19 +1,21 @@
 import styled from '@emotion/styled';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import ContractInput from '../Components/ContracInput';
 import Ethpector from './../assets/images/Ethpector.png';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { AutocompleteChangeDetails, AutocompleteChangeReason } from '@mui/material';
+import { AutocompleteChangeDetails, AutocompleteChangeReason, IconButton } from '@mui/material';
 import { HEADER_HEIGHT } from '../lib/constant';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import theme from '../themes/theme';
+import SettingsIcon from '@mui/icons-material/Settings';
+import { SettingsContext } from '../Context';
+import { Settings } from '../types/types';
+import { SettingsDialog } from '../Components/SettingsDialog';
 
 const StyledInput = styled(ContractInput)`
-  width: 80%;
+  width: 100%;
   padding: 0.4em;
-  float: right;
-  clear: right;
 `;
 
 const StyledHeader = styled.header`
@@ -30,17 +32,8 @@ const StyledHeader = styled.header`
 const HeaderContainer = styled.div`
   display: grid;
   align-items: center;
-  first:child {
-    justify-content: start;
-  }
-  last:child {
-    justify-content: end;
-  }
-  nth:child(2) {
-    justify-content: center;
-  }
-  padding: 0 20px;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  padding: 20px 20px;
 `;
 
 const StyledImage = styled.img`
@@ -55,18 +48,17 @@ const HomeLink = styled(Link)`
   color: inherit;
 `;
 
-const StyledTitle = styled.h1`
-  color: white;
-  outline: none;
-`;
-
 const StartHeader = styled.div`
   text-align: left;
 `;
 
+const CenterHeader = styled.div`
+  width: 100%;
+`;
+
 const EndHeader = styled.div`
-  text-align: left;
-  padding-left: 1em;
+  padding-right: 2em;
+  text-align: right;
 `;
 
 type HeaderProps = {
@@ -89,9 +81,11 @@ function a11yProps(index: number) {
 
 export default function Header({ address, setAddress }: HeaderProps) {
   const [active, setActive] = useState<string>();
+  const [openSettings, setOpenSettings] = useState(false);
 
   const location = useRef(useLocation());
   const navigate = useRef(useNavigate());
+  const { setSettings } = useContext(SettingsContext);
 
   useEffect(() => {
     if (active !== undefined && navigate.current) {
@@ -133,18 +127,35 @@ export default function Header({ address, setAddress }: HeaderProps) {
     setActive(newValue);
   };
 
+  const configureSettings = () => {
+    setOpenSettings(true);
+  };
+
+  const closeSettings = () => {
+    setOpenSettings(false);
+  };
+
+  const saveSettings = (settings: Settings) => {
+    setOpenSettings(false);
+    setSettings(settings);
+    localStorage.setItem('settings', JSON.stringify(settings));
+  };
+
   return (
+    <>
     <StyledHeader>
       <HeaderContainer>
         <StartHeader>
           <StyledImage src={Ethpector} alt="Logo" id="logo" />
           <HomeLink to={'/'}>CtrlEth</HomeLink>
         </StartHeader>
-        <div>
-          <StyledTitle>Contract: {address}</StyledTitle>
-        </div>
+        <CenterHeader>
+          <StyledInput addressInput={address} centered={true} onChange={onChange} />
+        </CenterHeader>
         <EndHeader>
-          <StyledInput addressInput={address} onChange={onChange} />
+          <IconButton onClick={configureSettings}>
+            <SettingsIcon style={{ color: 'white', transform: 'scale(1.8)' }} />
+          </IconButton>
         </EndHeader>
       </HeaderContainer>
       <Tabs
@@ -160,5 +171,8 @@ export default function Header({ address, setAddress }: HeaderProps) {
         ))}
       </Tabs>
     </StyledHeader>
+    <SettingsDialog open={openSettings} onClose={closeSettings} onSave={saveSettings} />
+    </>
   );
 }
+

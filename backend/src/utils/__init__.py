@@ -7,6 +7,7 @@ from ethpector.analysis import CodeAnalysis
 from ethpector.data import AggregateProvider
 from ethpector.config import Configuration
 from types import SimpleNamespace
+from datatypes.config import MythrilConfiguration
 
 load_dotenv()
 
@@ -21,13 +22,28 @@ def create_app():
 
     return app
 
-def use_args(ethpector_rpc= None, etherscan_token=None):
+
+def use_args(ethpector_rpc=None, etherscan_token=None):
     return {"rpc": ethpector_rpc, "etherscan_token": etherscan_token, "concolic": None, "loglevel": None, "deploy_code": None, "address": None,
             "tofile": None, "dont_drop_metadatastring": None, "offline": False, "nodotenv": None, "output": None, "output_dir": 'ethpector-output'}
 
-def get_analysis(address, args):
+
+def get_analysis(address, args, mythril_args=None):
 
     config = Configuration(SimpleNamespace(**args))
+
+    if mythril_args:
+        config.mythril = MythrilConfiguration({
+            "mythril_concolic": mythril_args.get("mythril_concolic"),
+            "strategy": mythril_args.get("strategy"),
+            "execution_timeout": mythril_args.get("execution_timeout"),
+            "max_depth": mythril_args.get("max_depth"),
+            "loop_bound": mythril_args.get("loop_bound"),
+            "create_timeout": mythril_args.get("create_timeout"),
+            "solver_timeout": mythril_args.get("solver_timeout"),
+            "call_depth_limit": mythril_args.get("call_depth_limit"),
+            "transaction_count": mythril_args.get("transaction_count")
+        })
 
     online_resolver = AggregateProvider(config)
 

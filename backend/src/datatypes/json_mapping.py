@@ -4,10 +4,9 @@ import pyevmasm as EVMAsm
 
 from datatypes.data import ReportedSymbolicVariable, ReportedSymbolicExpression, ReportedSymbolicMemorySlice, ReportedBasicBlocks, ReportedSymbolicExecSummary, FunctionSummary, Call, StorageLoad, StorageWrite, MemoryLoad, MemoryWrite, Log, Return, Revert, Calldataload, Calldatacopy, Selfdestruct, ConditionalJump, UnconditionalJump, Push, SenderConstraintFunction
 
-# https://github.com/uibk-ethpector/ethpector/blob/570537b28bdd3df99720f8880f0ff6d66244291e/src/ethpector/data/datatypes.py#L1023
-
 
 def json_to_assembly(json_string):
+    # https://github.com/uibk-ethpector/ethpector/blob/570537b28bdd3df99720f8880f0ff6d66244291e/src/ethpector/data/datatypes.py#L1023
     constants = json_string['constants']
     constant_summary = [ConstantSummary(
         constant['length'], constant['value'], constant['introduced_at']) for constant in constants]
@@ -46,8 +45,9 @@ def json_to_symbolic_variable(json_expression):
             return ReportedSymbolicVariable(json_expression, symbolic=True)
     return ReportedSymbolicVariable(json_expression)
 
-# https://github.com/uibk-ethpector/ethpector/blob/570537b28bdd3df99720f8880f0ff6d66244291e/src/ethpector/data/datatypes.py#L1075
+
 def json_to_instruction(json_string):
+    # https://github.com/uibk-ethpector/ethpector/blob/570537b28bdd3df99720f8880f0ff6d66244291e/src/ethpector/data/datatypes.py#L1075
     instruction = json_string['instruction']
     instruction_object = Instruction(EVMAsm.Instruction(opcode=instruction['_opcode'], name=instruction['_name'], operand_size=instruction['_operand_size'],
                                                         pops=instruction['_pops'], pushes=instruction['_pushes'], fee=instruction[

@@ -25,14 +25,14 @@ def etherscan_contract_creation(address, eth):
     creator_res = resp.json()
 
     if "message" not in creator_res:
-        return (None,None,None)
+        return (None, None, None)
 
     if creator_res['message'].startswith("NOTOK"):
-        return (None,None,None)
+        return (None, None, None)
 
     if "result" not in creator_res or len(creator_res['result']) < 1:
-        return (None,None,None)
-    
+        return (None, None, None)
+
     creation = creator_res['result'][0]
     transaction = creation['txHash'] if 'txHash' in creation else None
     creator = creation['contractCreator'] if 'contractCreator' in creation else None
@@ -75,10 +75,10 @@ def etherscan_transactions(address, eth, max_blocks):
     return (txs, int_txs)
 
 
-def decode_transactions(address,txs,abi=None):
+def decode_transactions(address, txs, abi=None):
     if abi:
         try:
-            contract = web3prov.eth.contract(address,abi=abi)
+            contract = web3prov.eth.contract(address, abi=abi)
         except Exception as error:
             print(f"web3py issue: {error}")
         for tx in txs:
@@ -101,11 +101,13 @@ def decode_transactions(address,txs,abi=None):
                 fd = FunctionDefinition(name)
                 tx['functionName'] = name
                 try:
-                    tx['functionArguments'] = fd.decode_input_to_str(tx['input'])
+                    tx['functionArguments'] = fd.decode_input_to_str(
+                        tx['input'])
                 except Exception as error:
                     print(f"Failed to parse arguments of {name}")
             except ValueError as value_error:
                 print(value_error)
+
 
 def decode_log_no_abi(log):
     topics = log['topics']
@@ -142,9 +144,10 @@ def decode_log_no_abi(log):
         except Exception as exception:
             print(f"decoding unindexed value failed: {exception}")
 
-    return (name,indexed_values,unindexed_values)
+    return (name, indexed_values, unindexed_values)
 
-def decode_log_abi(log,contract,mapping):
+
+def decode_log_abi(log, contract, mapping):
 
     topic_signature = log['topics'][0].hex()
 
@@ -152,7 +155,7 @@ def decode_log_abi(log,contract,mapping):
         signature = mapping[topic_signature]
     else:
         return None
-    
+
     event = contract.events[signature.split("(")[0]]
 
     receipt = web3prov.eth.getTransactionReceipt(log['transactionHash'])
@@ -160,54 +163,62 @@ def decode_log_abi(log,contract,mapping):
         if receipt['logs'][0]['topics'][0].hex() == topic_signature:
             try:
                 processed_log = event().processLog(receipt_log)
-                indexed_dict = dict([ (input['name'], input['indexed']) for input in event().abi['inputs'] ])
-                indexed = [{name: str(indexed)} for name, indexed in processed_log['args'].items() if indexed_dict[name]]
-                unindexed = [{name: indexed} for name, indexed in processed_log['args'].items() if not indexed_dict[name]]
-                return (signature,indexed,unindexed)
+                indexed_dict = dict([(input['name'], input['indexed'])
+                                    for input in event().abi['inputs']])
+                indexed = [{name: str(indexed)} for name, indexed in processed_log['args'].items(
+                ) if indexed_dict[name]]
+                unindexed = [{name: indexed} for name, indexed in processed_log['args'].items(
+                ) if not indexed_dict[name]]
+                return (signature, indexed, unindexed)
             except Exception as exception:
-                print(f"Decoding log failed with following message {exception}")
+                print(
+                    f"Decoding log failed with following message {exception}")
                 return None
 
-def decode_events(address,logs,abi=None):
+
+def decode_events(address, logs, abi=None):
     events = []
-    
+
     if abi != None:
         try:
-            contract = web3prov.eth.contract(address,abi=abi)
+            contract = web3prov.eth.contract(address, abi=abi)
         except Exception as error:
             print(f"web3py issue: {error}")
-        
+
         if contract:
             abi_json = AbiJson(abi)
-            event_signatures = [AbiJson.abi_entry_to_signature(x) for x in abi_json.abi_dict if x["type"] == "event"]
-            signature_mapping = dict([ ( "0x" + (sha3.keccak_256(signature.encode("utf-8")).hexdigest().lower()),signature) for signature in event_signatures])
+            event_signatures = [AbiJson.abi_entry_to_signature(
+                x) for x in abi_json.abi_dict if x["type"] == "event"]
+            signature_mapping = dict([("0x" + (sha3.keccak_256(signature.encode(
+                "utf-8")).hexdigest().lower()), signature) for signature in event_signatures])
 
     for log in logs:
 
         if contract:
-            decoded_log = decode_log_abi(log,contract,signature_mapping)
-        #if abi failed or not available use custom function    
+            decoded_log = decode_log_abi(log, contract, signature_mapping)
+        # if abi failed or not available use custom function
         if decoded_log == None:
             decoded_log = decode_log_no_abi(log)
 
-        name =  log['topics'][0].hex()
+        name = log['topics'][0].hex()
         indexed_values = []
         unindexed_values = []
 
         if decoded_log != None:
 
-            name,indexed_values,unindexed_values = decoded_log
-            
+            name, indexed_values, unindexed_values = decoded_log
+
         block = web3prov.eth.getTransaction(log.transactionHash).blockNumber
-        
+
         timestamp = web3prov.eth.getBlock(block).timestamp
 
         events.append({"signature": name, "indexedValues": indexed_values, "unindexedValues": unindexed_values,
-                    "timestamp":  str_timestamp_to_date(timestamp), "transactionHash": log['transactionHash'].hex()})
+                       "timestamp":  str_timestamp_to_date(timestamp), "transactionHash": log['transactionHash'].hex()})
 
     return events
 
-def retrieve_events(address, eth, max_blocks,starting_max):
+
+def retrieve_events(address, eth, max_blocks, starting_max):
 
     latest_block = int(eth.get_proxy_block_number(), base=0)
     start_block = latest_block - starting_max
@@ -218,7 +229,8 @@ def retrieve_events(address, eth, max_blocks,starting_max):
     # limit down blocks until only 1000 results in query left (1000 most recent transaction)
     while (logs == None or len(logs) < 50) and current_blocks <= max_blocks and current_blocks > 1000:
         try:
-            logs = web3prov.eth.get_logs({"fromBlock": start_block,"address": address})
+            logs = web3prov.eth.get_logs(
+                {"fromBlock": start_block, "address": address})
         except ValueError:
             current_blocks /= 2
             start_block = int(latest_block - current_blocks)

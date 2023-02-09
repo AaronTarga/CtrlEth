@@ -1,16 +1,17 @@
 import json
 from mythril.analysis.ops import get_variable, VarType
 
-# checks if instructions is conditional jump
+
 def is_conditional_jump(last):
+    # checks if instructions is conditional jump
     if last is None:
         return False
     else:
         return last.is_jumpi()
 
 
-# generate jumps depending on wether it is static or conditional
 def generate_jumps(bb, pc_to_block, conditional=False):
+    # generate jumps depending on wether it is static or conditional
     target = bb.get_next_block_true_branch()
     jumps = []
     if target is not None and target in pc_to_block:
@@ -23,18 +24,17 @@ def generate_jumps(bb, pc_to_block, conditional=False):
 
     return jumps
 
-# adding all annotations to the basic block object
-
 
 def add_annotations(bb, symbolic, disassembly):
+    # adding all annotations to the basic block object
     for inst in bb.instructions:
         inst.annotations += symbolic.get_annotations_valid_at(inst.pc())
         inst.annotations += disassembly.get_annotations_valid_at(inst.pc())
     bb.propagage_block_annotations()
 
 
-# convert basic block to json
 def create_block_dict(_id, bb):
+    # convert basic block to json
     block_dict = {}
     block_dict['types'] = []
     block_dict['i'] = _id
@@ -62,12 +62,13 @@ priorities = {
     "push": 13,
 }
 
-# append types depending on priority
-# if priority is greater it keeps looping until meet its place in list
-# if priority is equal it does not add to the types array because we do not want duplicates
-
 
 def addTypeToBlock(block, newType):
+    '''
+    append types depending on priority
+    if priority is greater it keeps looping until meet its place in list
+    if priority is equal it does not add to the types array because we do not want duplicates
+    '''
     i = 0
     block['types'].append(newType)
     block['types'] = list(filter(lambda item: item in block['types'], [
@@ -78,37 +79,37 @@ def add_symbolics(symbolic, blocks, pc_to_block):
     for _function in symbolic.functions:
         name = _function.name
         for pc in _function.pcs:
-            blocks[pc_to_block[pc]]['function'] = name
+            blocks[pc_to_block[int(pc)]]['function'] = name
     for _selfdestruct in symbolic.selfdestructs:
-        addTypeToBlock(blocks[pc_to_block[_selfdestruct.pc]], "selfdestruct")
+        addTypeToBlock(blocks[pc_to_block[int(_selfdestruct.pc)]], "selfdestruct")
     for _revert in symbolic.reverts:
-        addTypeToBlock(blocks[pc_to_block[_revert.pc]], "revert")
+        addTypeToBlock(blocks[pc_to_block[int(_revert.pc)]], "revert")
     for _calls in symbolic.calls:
-        addTypeToBlock(blocks[pc_to_block[_calls.pc]], "calls")
+        addTypeToBlock(blocks[pc_to_block[int(_calls.pc)]], "calls")
 
     for _create in symbolic.creates:
-        addTypeToBlock(blocks[pc_to_block[_create.pc]], "creates")
+        addTypeToBlock(blocks[pc_to_block[int(_create.pc)]], "creates")
     for _create2s in symbolic.create2s:
-        addTypeToBlock(blocks[pc_to_block[_create2s.pc]], "creates")
+        addTypeToBlock(blocks[pc_to_block[int(_create2s.pc)]], "creates")
     for _returns in symbolic.returns:
-        addTypeToBlock(blocks[pc_to_block[_returns.pc]], "returns")
+        addTypeToBlock(blocks[pc_to_block[int(_returns.pc)]], "returns")
     for _storage_read in symbolic.storage_reads:
-        addTypeToBlock(blocks[pc_to_block[_storage_read.pc]], "storageReads")
+        addTypeToBlock(blocks[pc_to_block[int(_storage_read.pc)]], "storageReads")
     for _storage_write in symbolic.storage_writes:
-        addTypeToBlock(blocks[pc_to_block[_storage_write.pc]], "storageWrites")
+        addTypeToBlock(blocks[pc_to_block[int(_storage_write.pc)]], "storageWrites")
     for _memory_read in symbolic.memory_reads:
-        addTypeToBlock(blocks[pc_to_block[_memory_read.pc]], "memoryReads")
+        addTypeToBlock(blocks[pc_to_block[int(_memory_read.pc)]], "memoryReads")
     for _memory_write in symbolic.memory_writes:
-        addTypeToBlock(blocks[pc_to_block[_memory_write.pc]], "memoryWrites")
+        addTypeToBlock(blocks[pc_to_block[int(_memory_write.pc)]], "memoryWrites")
     for _push in symbolic.pushes:
-        addTypeToBlock(blocks[pc_to_block[_push.pc]], "push")
+        addTypeToBlock(blocks[pc_to_block[int(_push.pc)]], "push")
     for _log in symbolic.logs:
-        addTypeToBlock(blocks[pc_to_block[_log.pc]], "logs")
+        addTypeToBlock(blocks[pc_to_block[int(_log.pc)]], "logs")
     for _calldataloads in symbolic.calldataloads:
-        addTypeToBlock(blocks[pc_to_block[_calldataloads.pc]], "calldataloads")
+        addTypeToBlock(blocks[pc_to_block[int(_calldataloads.pc)]], "calldataloads")
     for _calldatacopies in symbolic.calldatacopies:
         addTypeToBlock(
-            blocks[pc_to_block[_calldatacopies.pc]], "calldatacopies")
+            blocks[pc_to_block[int(_calldatacopies.pc)]], "calldatacopies")
 
 
 def add_storage_lookups(symbolic_summary, address, bbs, pc_to_block, web3prov):
