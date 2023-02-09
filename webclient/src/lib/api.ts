@@ -2,6 +2,7 @@ import {
   ApiResult,
   BasicContract,
   ContractEvents,
+  ContractList,
   ContractTransactions,
   DisassemblyResponse,
   DisassemblyState,
@@ -69,6 +70,10 @@ export class ApiController {
   }
   async getContractTransactions(address: string, signal: AbortSignal): Promise<ApiResult<ContractTransactions>> {
     return this.handleResponse('/information/transactions/' + address, signal);
+  }
+
+  async getContracts( signal: AbortSignal): Promise<ApiResult<ContractList>> {
+    return this.handleResponse('/contracts' , signal);
   }
 
   async getCachedDisassembly(
