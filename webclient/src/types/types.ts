@@ -180,6 +180,10 @@ export type TaskResponse = {
   tasks: Array<Task>;
 }
 
+export type ContractList = {
+  contracts: Array<string>;
+}
+
 export type Task = {
   contract: string,
   args: object,

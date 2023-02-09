@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import ContractInput from '../Components/ContracInput';
 import Ethpector from './../assets/images/Ethpector.png';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -9,6 +9,9 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import theme from '../themes/theme';
 import SettingsIcon from '@mui/icons-material/Settings';
+import { SettingsContext } from '../Context';
+import { Settings } from '../types/types';
+import { SettingsDialog } from '../Components/SettingsDialog';
 
 const StyledInput = styled(ContractInput)`
   width: 100%;
@@ -51,7 +54,7 @@ const StartHeader = styled.div`
 
 const CenterHeader = styled.div`
   width: 100%;
-`
+`;
 
 const EndHeader = styled.div`
   padding-right: 2em;
@@ -78,9 +81,11 @@ function a11yProps(index: number) {
 
 export default function Header({ address, setAddress }: HeaderProps) {
   const [active, setActive] = useState<string>();
+  const [openSettings, setOpenSettings] = useState(false);
 
   const location = useRef(useLocation());
   const navigate = useRef(useNavigate());
+  const { setSettings } = useContext(SettingsContext);
 
   useEffect(() => {
     if (active !== undefined && navigate.current) {
@@ -122,7 +127,22 @@ export default function Header({ address, setAddress }: HeaderProps) {
     setActive(newValue);
   };
 
+  const configureSettings = () => {
+    setOpenSettings(true);
+  };
+
+  const closeSettings = () => {
+    setOpenSettings(false);
+  };
+
+  const saveSettings = (settings: Settings) => {
+    setOpenSettings(false);
+    setSettings(settings);
+    localStorage.setItem('settings', JSON.stringify(settings));
+  };
+
   return (
+    <>
     <StyledHeader>
       <HeaderContainer>
         <StartHeader>
@@ -133,8 +153,8 @@ export default function Header({ address, setAddress }: HeaderProps) {
           <StyledInput addressInput={address} centered={true} onChange={onChange} />
         </CenterHeader>
         <EndHeader>
-          <IconButton >
-            <SettingsIcon style={{color: "white", transform: "scale(1.8)"}}/>
+          <IconButton onClick={configureSettings}>
+            <SettingsIcon style={{ color: 'white', transform: 'scale(1.8)' }} />
           </IconButton>
         </EndHeader>
       </HeaderContainer>
@@ -151,5 +171,8 @@ export default function Header({ address, setAddress }: HeaderProps) {
         ))}
       </Tabs>
     </StyledHeader>
+    <SettingsDialog open={openSettings} onClose={closeSettings} onSave={saveSettings} />
+    </>
   );
 }
+

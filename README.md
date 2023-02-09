@@ -29,9 +29,9 @@ This can be installed using pip:
 python3 -m pip install requirements.txt
 ```
 
-If docker is not used it is required to run a Redis server.
-On Ubuntu installable with `sudo apt install redis-server`
-
+If docker is not used it is required to run a Redis server and a MongoDB server.
+On Ubuntu redis installable with `sudo apt install redis-server`
+For installing MonogoDB see the community server page of [MongoDB](https://www.mongodb.com/try/download/community).
 
 ## Frontend
 For the React frontend nodejs and npm need to be installed. (https://nodejs.org/en/).
@@ -48,7 +48,8 @@ npm install
 ### Backend
 
 Before starting the backend it is required to add a .env file with all the variables set like shown in the [config files section](#config-files).
-The variables FLASK_APP,CELERY_BROKER_URL,CELERY_RESULT_BACKEND, ETHERSCAN_TOKEN and ETHPECTOR_RPC need to be set.
+The variables FLASK_APP,CELERY_BROKER_URL,DB_HOST,CELERY_RESULT_BACKEND, ETHERSCAN_TOKEN and ETHPECTOR_RPC need to be set.
+The Mythril variables are recommended as custom defaults but are not required.
 All variables except the token and the rpc url can be used like in the example in the config files section. A free etherscan token can be obtained by creating an account at https://etherscan.io/. Etherscan provides metadata and source code that are required for the functionalities provided by the backend. Without these the backend is not fully functional.
 A rpc url can be obtained by creating a free account at infura https://infura.io/product/ethereum or another option is to run an Ethereum node. For a guide concerning this, the official Ethereum documentation for [running a node](https://ethereum.org/en/developers/docs/nodes-and-clients/run-a-node/) is a good starting point.
 
@@ -98,16 +99,24 @@ ETHPECTOR_RPC=<your-node-url>
 Variables for docker:
 ```bash
 FLASK_HOST=redis
+DB_HOST=mongodb
 CELERY_BROKER_URL=redis://redis:6379/0
 CELERY_RESULT_BACKEND=redis://redis:6379/0
 ```
 
 Variables for local setup:
 ```bash
-CELERY_ALWAYS_EAGER  = True
 FLASK_HOST=localhost
+DB_HOST=localhost
 CELERY_BROKER_URL=redis://localhost:6379/0
 CELERY_RESULT_BACKEND=redis://localhost:6379/0
+```
+
+For mongodb it is required to define a password protecting the database from unauthorized users:
+
+```bash
+MONGO_INITDB_ROOT_USERNAME=user
+MONGO_INITDB_ROOT_PASSWORD=securepassword
 ```
 
 Specific configurations for Ethpector for the used Mythril library, which can be fine tuned to
@@ -118,7 +127,6 @@ ETHPECTOR_MYTHRIL_EXECUTION_TIMEOUT=50
 ETHPECTOR_MYTHRIL_CREATE_TIMEOUT=60
 ETHPECTOR_MYTHRIL_MAX_DEPTH=22
 ETHPECTOR_MYTHRIL_SOLVER_TIMEOUT=200000
-# ETHPECTOR_MYTHRIL_CONCOLICEXEC=1
 ```
 The complete file:
 ```bash
@@ -129,14 +137,20 @@ ETHERSCAN_TOKEN=<your-token>
 ETHPECTOR_RPC=<your-infura-url>
 
 #debug
-CELERY_ALWAYS_EAGER  = True
 FLASK_HOST=localhost
+DB_HOST=localhost
 CELERY_BROKER_URL=redis://localhost:6379/0
 CELERY_RESULT_BACKEND=redis://localhost:6379/0
 #deploy
 FLASK_HOST=redis
+DB_HOST=mongodb
 CELERY_BROKER_URL=redis://redis:6379/0
 CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+#MONGODB
+MONGO_INITDB_ROOT_USERNAME=user
+MONGO_INITDB_ROOT_PASSWORD=securepassword
+
 #ETHPTECTOR SETTINGS
 ETHPECTOR_CHAINID=1
 ETHPECTOR_MYTHRIL_EXECUTION_TIMEOUT=1800 #86400

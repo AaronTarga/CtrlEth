@@ -38,7 +38,7 @@ class MythrilConfiguration:
 
     def max_depth(self) -> int:
         if self._max_depth:
-            return self.max_depth
+            return self._max_depth
 
         env = os.getenv("ETHPECTOR_MYTHRIL_MAX_DEPTH")
         return int(env) if env else 128
@@ -51,20 +51,28 @@ class MythrilConfiguration:
         return int(env) if env else 5
 
     def create_timeout(self) -> int:
+        if self._create_timeout:
+            return self._create_timeout
         env = os.getenv("ETHPECTOR_MYTHRIL_CREATE_TIMEOUT")
         return int(env) if env else 40
 
     def solver_timeout(self) -> int:
+        if self._solver_timeout:
+            return self._solver_timeout
         # The maximum amount of time(in milli seconds) the solver
         # spends for queries from analysis modules
         env = os.getenv("ETHPECTOR_MYTHRIL_SOLVER_TIMEOUT")
         return int(env) if env else 10000
 
     def call_depth_limit(self) -> int:
+        if self._call_depth_limit:
+            return self._call_depth_limit
         env = os.getenv("ETHPECTOR_MYTHRIL_CALL_DEPTH_LIMIT")
         return int(env) if env else 10
 
     def transaction_count(self) -> int:
+        if self._transaction_count:
+            return self._transaction_count
         env = os.getenv("ETHPECTOR_MYTHRIL_TRANSACTION_COUNT")
         return int(env) if env else 3
 
