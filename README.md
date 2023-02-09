@@ -48,9 +48,10 @@ npm install
 ### Backend
 
 Before starting the backend it is required to add a .env file with all the variables set like shown in the [config files section](#config-files).
-The variables FLASK_APP,CELERY_BROKER_URL,DB_HOST,CELERY_RESULT_BACKEND, ETHERSCAN_TOKEN and ETHPECTOR_RPC need to be set.
+All variables except the Mythril variables are currently required to be defined in the env file.
 The Mythril variables are recommended as custom defaults but are not required.
-All variables except the token and the rpc url can be used like in the example in the config files section. A free etherscan token can be obtained by creating an account at https://etherscan.io/. Etherscan provides metadata and source code that are required for the functionalities provided by the backend. Without these the backend is not fully functional.
+All variables except the database credentials, the token and the rpc url can be used like in the example in the config files section. For the credentials a user and a secure password should be defined.
+ A free etherscan token can be obtained by creating an account at https://etherscan.io/. Etherscan provides metadata and source code that are required for the functionalities provided by the backend. Without these the backend is not fully functional.
 A rpc url can be obtained by creating a free account at infura https://infura.io/product/ethereum or another option is to run an Ethereum node. For a guide concerning this, the official Ethereum documentation for [running a node](https://ethereum.org/en/developers/docs/nodes-and-clients/run-a-node/) is a good starting point.
 
 #### Docker
