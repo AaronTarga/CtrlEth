@@ -139,8 +139,6 @@ export interface Call extends PCAnnotation {
 export interface StorageLoad extends PCAnnotation {
     data: PCAnnotation['data'] & {
         slot: SymbolicVariable
-        concreteValue?: string,
-        concreteValueText?: string
     }
 }
 
@@ -172,7 +170,6 @@ export interface Log extends PCAnnotation {
         topic2: SymbolicVariable
         topic3: SymbolicVariable
         data: SymbolicMemorySlice
-        name: string
 
     }
 }

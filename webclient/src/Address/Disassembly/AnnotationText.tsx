@@ -7,6 +7,7 @@ import Card from '@mui/material/Card';
 import styled from '@emotion/styled';
 import { FormattedAnnotation, FormattedSubAnnotation } from '../../lib/formatting';
 import { Fragment } from 'react';
+import { Button } from '@mui/material';
 
 const BlockCard = styled(Card)((props) => ({
   margin: '1em',
@@ -20,8 +21,18 @@ export type AnnotationProps = {
   annotations: Array<FormattedAnnotation>;
 };
 
+
 export default function AnnotationText({ pc, name, annotations }: AnnotationProps) {
   const elementAnnotations = annotations.map((annotation: FormattedAnnotation, index: number) => {
+
+    if (annotation.title === "Log") {
+
+    }
+
+    if (annotation.title === "Storage Load") {
+
+    }
+
     const items = annotation.annotations.map((subAnnotation: FormattedSubAnnotation) => {
       return (
         <ListItem key={`${annotation.title}-${subAnnotation.title}`}>
@@ -34,6 +45,8 @@ export default function AnnotationText({ pc, name, annotations }: AnnotationProp
       <Fragment key={`${annotation.title}-${index})`}>
         <Typography variant="h6">{annotation.title}</Typography>
         <List>{items}</List>
+        {annotation.title === "Log" && <Button variant='contained' color="secondary">Event Name Lookup</Button>}
+        {annotation.title === "Storage Load" && <Button variant='contained' color="secondary">Storage Lookup</Button>}
       </Fragment>
     );
   });
