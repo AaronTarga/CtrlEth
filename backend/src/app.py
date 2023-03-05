@@ -3,8 +3,8 @@ from celery.result import AsyncResult
 from flask import jsonify
 from celery.signals import setup_logging
 from utils import get_analysis, use_args
-from disassembly_routes import disassembly_route
-from information_routes import information_route
+from routes.disassembly_routes import disassembly_route
+from routes.information_routes import information_route
 from shared import app, inspect, celery
 from utils.source import categorize_abi_names
 from utils.format import str_timestamp_to_date

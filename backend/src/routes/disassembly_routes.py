@@ -1,6 +1,6 @@
 import os
 from flask import Blueprint, request
-from utils.disassembly import add_annotations, add_symbolics, create_block_dict, is_conditional_jump, generate_jumps, add_event_lookups, add_storage_lookups
+from utils.disassembly import add_annotations, add_symbolics, create_block_dict, is_conditional_jump, generate_jumps
 from utils import get_analysis, use_args
 from ethpector.data.node import NodeProvider
 from ethpector.data import AggregateProvider
@@ -12,7 +12,6 @@ from json import JSONDecodeError
 from celery_once import QueueOnce
 from shared import celery, redis
 import dataclasses
-from ethpector.data.signatures import SignatureProvider
 from celery_once import AlreadyQueued
 from ethpector.config import Configuration
 from types import SimpleNamespace
@@ -42,6 +41,10 @@ class IntDecoder(json.JSONDecoder):
             return [self._decode(v) for v in o]
         else:
             return o
+
+            
+web3prov = NodeProvider(rpc_url=ethpector_rpc)
+
 
 @celery.task(name=disassembly_task_name, base=QueueOnce, once={'keys': ['address']})
 def get_disassembly(address, args, mythril_args=None):
@@ -173,14 +176,6 @@ def load_analysis(address):
 
     blocks = []
 
-    web3prov = NodeProvider(rpc_url=ethpector_rpc)
-
-    add_storage_lookups(symbolic_summary, address, bbs, pc_to_block, web3prov)
-
-    signature_provider = SignatureProvider()
-
-    add_event_lookups(symbolic_summary, bbs, pc_to_block, signature_provider)
-
     # create dict that maps all instructions to each block
     for _id, bb in enumerate(bbs):
         block_dict = create_block_dict(_id, bb)
@@ -227,6 +222,7 @@ def get_disassembly_cfg(address, args):
     bbs = analysis.aa.get_basic_blocks()
 
     return json_graph.node_link_data(bbs.get_cfg())
+
 
 
 @disassembly_route.route("/<address>")
