@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import { AutocompleteChangeDetails, AutocompleteChangeReason, Button, Paper } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
-import { SettingsDialog } from '../Components/SettingsDialog';
+import { SettingsDialog } from '../Components/Dialogs/SettingsDialog';
 import { SettingsContext } from '../Context';
 import { Settings } from '../types/types';
 

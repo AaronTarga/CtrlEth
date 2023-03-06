@@ -2,6 +2,7 @@ import os
 from flask import Blueprint, request
 from ethpector.data.signatures import SignatureProvider
 from ethpector.data.node import NodeProvider
+import json
 
 
 lookup_route = Blueprint('lookup', __name__,)
@@ -30,7 +31,7 @@ def storage_lookup(address):
     if storage_value == None:
         return "Could not resolve storage of contract",404
 
-    return storage_value.hex()
+    return json.dumps(storage_value.hex())
 
 @lookup_route.route("/event/<event>")
 def event_lookup(event):
@@ -50,4 +51,4 @@ def event_lookup(event):
     if signature == None:
         return "Could not retrieve signature",404
 
-    return signature
+    return json.dumps(signature)

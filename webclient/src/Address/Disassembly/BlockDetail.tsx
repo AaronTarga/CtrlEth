@@ -11,6 +11,8 @@ import ListItem from '@mui/material/ListItem';
 import { CenteredItem } from '../../Components/Layout';
 import { formatAnnotation, FormattedAnnotation } from '../../lib/formatting';
 import TextField from '@mui/material/TextField';
+import { SimpleDialog } from '../../Components/Dialogs/SimpleDialog';
+import { ApiController } from '../../lib/api';
 
 export type BlockDetailProps = {
   blockDetail: Block | undefined;
@@ -24,6 +26,22 @@ export default function BlockDetail({ blockDetail, setBlockDetail, functionColor
   const [descriptions, setDescriptions] = useState<any[]>([]);
   const [formattedAnnotations, setFormattedAnnotations] = useState<AnnotationProps[]>([]);
   const [filterText, setFilterText] = useState<string>('');
+  const [eventValue, setEventValue] = useState('');
+  const [eventOpen, setEventOpen] = useState(false);
+
+  const eventLookup = (event: string | undefined) => {
+    if (event !== '' && event !== undefined) {
+      const apiController = new ApiController();
+      let controller = new AbortController();
+      const signal = controller.signal;
+      apiController.getEventLookup(event, signal).then((result) => {
+        if (result.data) {
+          setEventValue(result.data);
+          setEventOpen(true);
+        }
+      });
+    }
+  };
 
   const filterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFilterText(event.target.value);
@@ -54,6 +72,7 @@ export default function BlockDetail({ blockDetail, setBlockDetail, functionColor
             pc: wrappedAnnotation.header.pc,
             name: wrappedAnnotation.header.name,
             annotations: formattedAnnotations,
+            eventLookup: eventLookup,
           };
         })
         .filter((item) => item.annotations.length > 0);
@@ -117,11 +136,21 @@ export default function BlockDetail({ blockDetail, setBlockDetail, functionColor
                 pc={annotationProp.pc}
                 name={annotationProp.name}
                 annotations={annotationProp.annotations}
+                eventLookup={eventLookup}
               />
             );
           })}
         </ExpandableItem>
       )}
+      <SimpleDialog
+        title="EventName"
+        text={eventValue}
+        open={eventOpen}
+        onClose={() => {
+          setEventOpen(false);
+        }}
+      />
     </>
   );
 }
+

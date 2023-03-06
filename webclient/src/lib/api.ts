@@ -52,13 +52,13 @@ export class ApiController {
     signal: AbortSignal,
     args: Settings
   ): Promise<ApiResult<DisassemblyState>> {
-    let queryString = "?";
-    queryString += `etherscan=${args.etherscan}`
-    queryString += `&rpc=${args.rpc}`
-    queryString += `&execution_timeout=${args.mythril.executionTimeout}`
-    queryString += `&create_timeout=${args.mythril.createTimeout}`
-    queryString += `&max_depth=${args.mythril.maxDepth}`
-    queryString += `&solver_timeout=${args.mythril.solverTimeout}`
+    let queryString = '?';
+    queryString += `etherscan=${args.etherscan}`;
+    queryString += `&rpc=${args.rpc}`;
+    queryString += `&execution_timeout=${args.mythril.executionTimeout}`;
+    queryString += `&create_timeout=${args.mythril.createTimeout}`;
+    queryString += `&max_depth=${args.mythril.maxDepth}`;
+    queryString += `&solver_timeout=${args.mythril.solverTimeout}`;
     return this.handleResponse('/disassembly/' + address + queryString, signal, args);
   }
   async getBasicInformation(address: string, signal: AbortSignal): Promise<ApiResult<BasicContract>> {
@@ -72,8 +72,8 @@ export class ApiController {
     return this.handleResponse('/information/transactions/' + address, signal);
   }
 
-  async getContracts( signal: AbortSignal): Promise<ApiResult<ContractList>> {
-    return this.handleResponse('/contracts' , signal);
+  async getContracts(signal: AbortSignal): Promise<ApiResult<ContractList>> {
+    return this.handleResponse('/contracts', signal);
   }
 
   async getCachedDisassembly(
@@ -85,6 +85,14 @@ export class ApiController {
 
   async getActiveTasks(signal: AbortSignal): Promise<ApiResult<TaskResponse>> {
     return this.handleResponse('/tasks', signal);
+  }
+
+  async getStorageLookup(address: string, slot: string, signal: AbortSignal) {
+    return this.handleResponse(`/disassembly/lookup/storage/${address}?slot${slot}`, signal);
+  }
+
+  async getEventLookup(address: string, signal: AbortSignal) {
+    return this.handleResponse(`/lookup/event/${address}`, signal);
   }
 }
 
