@@ -13,6 +13,7 @@ import DataCopy from '../assets/icons/clone-regular.svg';
 import Default from '../assets/icons/circle-regular.svg';
 import Creates from '../assets/icons/plus-solid.svg';
 import { Block, FunctionOverview } from './assembly';
+import { FormattedAnnotation } from '../lib/formatting';
 
 export interface StringDict {
   [key: string]: string;
@@ -211,3 +212,9 @@ export type SourceCode = {
   events: Array<string>;
   functions: Array<string>;
 };
+
+export type BlockAnnotation = {
+  pc: number;
+  name: string;
+  annotations: Array<FormattedAnnotation>;
+}

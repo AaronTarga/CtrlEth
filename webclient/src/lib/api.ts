@@ -88,7 +88,7 @@ export class ApiController {
   }
 
   async getStorageLookup(address: string, slot: string, signal: AbortSignal) {
-    return this.handleResponse(`/disassembly/lookup/storage/${address}?slot${slot}`, signal);
+    return this.handleResponse(`/lookup/storage/${address}?slot=${slot}`, signal);
   }
 
   async getEventLookup(address: string, signal: AbortSignal) {

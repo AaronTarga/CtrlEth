@@ -451,7 +451,7 @@ export default function Disassembly() {
             </TopBar>
             {drawerView === 'legend' && container && <BottomLegend functionColors={functionColors} />}
             {drawerView === 'detail' && container && (
-              <BlockDetail blockDetail={blockDetail} setBlockDetail={setBlockDetail} functionColors={functionColors} />
+              <BlockDetail blockDetail={blockDetail} setBlockDetail={setBlockDetail} functionColors={functionColors} address={address} />
             )}
             {drawerView === 'function' && container && (
               <FunctionDetail

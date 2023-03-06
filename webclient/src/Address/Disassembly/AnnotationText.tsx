@@ -20,9 +20,10 @@ export type AnnotationProps = {
   name: string;
   annotations: Array<FormattedAnnotation>;
   eventLookup: (event: string | undefined) => void;
+  storageLookup: (slot: string | undefined) => void;
 };
 
-export default function AnnotationText({ pc, name, annotations, eventLookup }: AnnotationProps) {
+export default function AnnotationText({ pc, name, annotations, eventLookup, storageLookup}: AnnotationProps) {
   // const [storageTitle,setStorageTitle] = useState('')
 
   const elementAnnotations = annotations.map((annotation: FormattedAnnotation, index: number) => {
@@ -52,7 +53,7 @@ export default function AnnotationText({ pc, name, annotations, eventLookup }: A
           </Button>
         )}
         {annotation.title === 'Storage Load' && (
-          <Button variant="contained" color="secondary">
+          <Button onClick={() => storageLookup(lookupValue)} variant="contained" color="secondary">
             Storage Lookup
           </Button>
         )}
