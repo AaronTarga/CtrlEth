@@ -13,6 +13,7 @@ import { formatAnnotation, FormattedAnnotation } from '../../lib/formatting';
 import TextField from '@mui/material/TextField';
 import { SimpleDialog } from '../../Components/Dialogs/SimpleDialog';
 import { ApiController } from '../../lib/api';
+import { retrieveSettings } from '../../lib/settings';
 
 export type BlockDetailProps = {
   blockDetail: Block | undefined;
@@ -31,6 +32,7 @@ export default function BlockDetail({ blockDetail, setBlockDetail, functionColor
   const [eventOpen, setEventOpen] = useState(false);
   const [storageValue, setStorageValue] = useState('');
   const [storageOpen, setStorageOpen] = useState(false);
+  const [settings] = useState(retrieveSettings);
 
   const eventLookup = (event: string | undefined) => {
     if (event !== '' && event !== undefined) {
@@ -51,7 +53,7 @@ export default function BlockDetail({ blockDetail, setBlockDetail, functionColor
       const apiController = new ApiController();
       let controller = new AbortController();
       const signal = controller.signal;
-      apiController.getStorageLookup(address, slot, signal).then((result) => {
+      apiController.getStorageLookup(address, {"rpc": settings.rpc,"slot": slot}, signal).then((result) => {
         if (result.data) {
           setStorageValue(result.data);
           setStorageOpen(true);
