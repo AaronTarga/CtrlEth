@@ -87,8 +87,11 @@ export class ApiController {
     return this.handleResponse('/tasks', signal);
   }
 
-  async getStorageLookup(address: string, slot: string, signal: AbortSignal) {
-    return this.handleResponse(`/lookup/storage/${address}?slot=${slot}`, signal);
+  async getStorageLookup(address: string, args: {rpc: string | undefined, slot: string}, signal: AbortSignal) {
+    let queryString = '?';
+    queryString += `rpc=${args.rpc}`;
+    queryString += `&slot=${args.slot}`
+    return this.handleResponse(`/lookup/storage/${address}${queryString}`, signal);
   }
 
   async getEventLookup(address: string, signal: AbortSignal) {
