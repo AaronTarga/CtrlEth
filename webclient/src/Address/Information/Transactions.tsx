@@ -1,7 +1,7 @@
 import { Card, CardContent, CircularProgress, Grid, List, ListItem, Typography } from '@mui/material';
 import { Dispatch, useEffect, useState } from 'react';
 import { ErrorText, InfoContainer, OverflowDiv, SubInfo } from '../../Components/Layout';
-import TransactionTable from '../../Components/TransactionTable';
+import TransactionTable from '../../Components/Tables/TransactionTable';
 import { ApiController, mapStatusToMessage } from '../../lib/api';
 import { extractFunctions, FormattedOccurences, sortOccurences } from '../../lib/function';
 import { ApiResult, ContractTransactions } from '../../types/types';

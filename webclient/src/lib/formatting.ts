@@ -140,8 +140,6 @@ export const formatAnnotation = (annotation: BaseAnnotation): FormattedAnnotatio
             const sload = (annotation as StorageLoad).data;
             return createAnnotation('Storage Load', [
                 { title: 'Tags', content: sload.tags },
-                { title: 'Concrete value', content: sload.concreteValue },
-                { title: 'Concrete value as text', content: sload.concreteValueText },
                 { title: 'Slot', content: sload.slot },
             ]);
         case 'StorageWrite':
@@ -188,7 +186,6 @@ export const formatAnnotation = (annotation: BaseAnnotation): FormattedAnnotatio
                 { title: 'Tags', content: log.tags },
                 { title: 'Count', content: log.n },
                 { title: 'Data', content: log.data },
-                { title: 'Event Name', content: log.name }
             ]));
         case 'Return':
             const _return = (annotation as Return).data;

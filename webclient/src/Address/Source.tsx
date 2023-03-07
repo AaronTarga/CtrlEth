@@ -5,7 +5,7 @@ import { CenterDiv, ErrorText } from '../Components/Layout';
 import { useAddress } from './Address';
 import { ApiResult, SourceCode } from '../types/types';
 import { CircularProgress, Stack } from '@mui/material';
-import { AbiDialog } from '../Components/AbiDialog';
+import { AbiDialog } from '../Components/Dialogs/AbiDialog';
 import Button from '@mui/material/Button';
 
 export default function Source() {

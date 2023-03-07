@@ -1,9 +1,9 @@
 import { Table, TableBody, TableContainer, Paper, TablePagination, TableHead, Typography } from '@mui/material';
 
-import { ContractEvent } from '../types/types';
+import { ContractEvent } from '../../types/types';
 import { useState, Dispatch } from 'react';
-import theme from '../themes/theme';
-import { StyledTableCell, StyledTableRow, StyledLink } from '../lib/table';
+import theme from '../../themes/theme';
+import { StyledTableCell, StyledTableRow, StyledLink } from '../../lib/table';
 
 export type EventTableProps = {
   events: Array<ContractEvent>;

@@ -11,7 +11,7 @@ import theme from '../themes/theme';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { SettingsContext } from '../Context';
 import { Settings } from '../types/types';
-import { SettingsDialog } from '../Components/SettingsDialog';
+import { SettingsDialog } from '../Components/Dialogs/SettingsDialog';
 
 const StyledInput = styled(ContractInput)`
   width: 100%;

@@ -1,5 +1,5 @@
 import { extractEvents, FormattedOccurences, sortOccurences } from '../../lib/function';
-import EventTable from '../../Components/EventTable';
+import EventTable from '../../Components/Tables/EventTable';
 import { ErrorText, InfoContainer, OverflowDiv, SubInfo } from '../../Components/Layout';
 import { Card, CardContent, CircularProgress, Grid, List, ListItem, Typography } from '@mui/material';
 import { Dispatch, useEffect, useState } from 'react';
