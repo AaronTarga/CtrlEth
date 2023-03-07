@@ -19,7 +19,7 @@ export function SimpleDialog({title,text,open,onClose}: SimpleDialogProps) {
             {title}
         </DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
+          <DialogContentText sx={{overflowWrap: 'break-word'}} id="alert-dialog-description">
             {text}
           </DialogContentText>
         </DialogContent>
