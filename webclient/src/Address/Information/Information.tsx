@@ -10,7 +10,7 @@ import {
   Snackbar,
   Grid,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { CenterDiv, ErrorText, OverflowDiv } from '../../Components/Layout';
 
 import { ApiController, mapStatusToMessage } from '../../lib/api';
@@ -19,6 +19,7 @@ import { useAddress } from '../Address';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Transactions from './Transactions';
 import Events from './Events';
+import { SettingsContext } from '../../Context';
 
 export default function Information() {
   const { address } = useAddress();
@@ -27,6 +28,7 @@ export default function Information() {
   const [basicInformation, setBasicInformation] = useState<BasicContract>();
   const [loading, setLoading] = useState(false);
   const [alertShown, setAlertShown] = useState(false);
+  const { settings } = useContext(SettingsContext);
 
   const closeAlert = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
@@ -56,21 +58,23 @@ export default function Information() {
     let controller = new AbortController();
     const signal = controller.signal;
 
-    apiController.getBasicInformation(currentAddress, signal).then((response: ApiResult<BasicContract>) => {
-      if (response.data !== null) {
-        setBasicInformation(response.data);
-        setError(response.error);
-        setLoading(false);
-      } else if (response.error) {
-        setLoading(false);
-        setError(response.error);
-      }
-    });
+    apiController
+      .getBasicInformation(currentAddress, { rpc: settings.rpc, token: settings.etherscan }, signal)
+      .then((response: ApiResult<BasicContract>) => {
+        if (response.data !== null) {
+          setBasicInformation(response.data);
+          setError(response.error);
+          setLoading(false);
+        } else if (response.error) {
+          setLoading(false);
+          setError(response.error);
+        }
+      });
 
     return () => {
       controller.abort();
     };
-  }, [currentAddress]);
+  }, [currentAddress, settings.rpc, settings.etherscan]);
 
   var content;
 
@@ -187,3 +191,4 @@ export default function Information() {
     </>
   );
 }
+

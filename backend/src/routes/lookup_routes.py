@@ -18,8 +18,6 @@ signature_provider = SignatureProvider()
 def storage_lookup(address):
 
     rpc = request.args.get('rpc')
-    if (rpc == None):
-        rpc = ethpector_rpc
         
     web3prov = NodeProvider(rpc_url=rpc)
     

@@ -12,16 +12,13 @@ import sha3
 
 
 etherscan_base = "https://api.etherscan.io/api"
-etherscan_token = os.environ.get('ETHERSCAN_TOKEN')
-ethpector_rpc = os.environ.get('ETHPECTOR_RPC')
 
 signature_provider = SignatureProvider()
-web3prov = Web3(Web3.HTTPProvider(ethpector_rpc))
 
 
-def etherscan_contract_creation(address, eth):
+def etherscan_contract_creation(token, address, eth):
     resp = requests.get(
-        f"{etherscan_base}?module=contract&action=getcontractcreation&contractaddresses={address}&apiKey={etherscan_token}")
+        f"{etherscan_base}?module=contract&action=getcontractcreation&contractaddresses={address}&apiKey={token}")
     creator_res = resp.json()
 
     if "message" not in creator_res:
@@ -75,7 +72,9 @@ def etherscan_transactions(address, eth, max_blocks):
     return (txs, int_txs)
 
 
-def decode_transactions(address, txs, abi=None):
+def decode_transactions(rpc, address, txs, abi=None):
+    web3prov = Web3(Web3.HTTPProvider(rpc))
+
     if abi:
         try:
             contract = web3prov.eth.contract(address, abi=abi)
@@ -147,7 +146,7 @@ def decode_log_no_abi(log):
     return (name, indexed_values, unindexed_values)
 
 
-def decode_log_abi(log, contract, mapping):
+def decode_log_abi(rpc, log, contract, mapping):
 
     topic_signature = log['topics'][0].hex()
 
@@ -157,6 +156,8 @@ def decode_log_abi(log, contract, mapping):
         return None
 
     event = contract.events[signature.split("(")[0]]
+
+    web3prov = Web3(Web3.HTTPProvider(rpc))
 
     receipt = web3prov.eth.getTransactionReceipt(log['transactionHash'])
     for receipt_log in receipt['logs']:
@@ -176,8 +177,10 @@ def decode_log_abi(log, contract, mapping):
                 return None
 
 
-def decode_events(address, logs, abi=None):
+def decode_events(rpc, address, logs, abi=None):
     events = []
+
+    web3prov = Web3(Web3.HTTPProvider(rpc))
 
     if abi != None:
         try:
@@ -195,7 +198,7 @@ def decode_events(address, logs, abi=None):
     for log in logs:
 
         if contract:
-            decoded_log = decode_log_abi(log, contract, signature_mapping)
+            decoded_log = decode_log_abi(rpc, log, contract, signature_mapping)
         # if abi failed or not available use custom function
         if decoded_log == None:
             decoded_log = decode_log_no_abi(log)
@@ -218,12 +221,14 @@ def decode_events(address, logs, abi=None):
     return events
 
 
-def retrieve_events(address, eth, max_blocks, starting_max):
+def retrieve_events(rpc, address, eth, max_blocks, starting_max):
 
     latest_block = int(eth.get_proxy_block_number(), base=0)
     start_block = latest_block - starting_max
 
     current_blocks = starting_max
+
+    web3prov = Web3(Web3.HTTPProvider(rpc))
 
     logs = None
     # limit down blocks until only 1000 results in query left (1000 most recent transaction)

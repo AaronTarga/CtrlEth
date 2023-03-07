@@ -5,7 +5,7 @@ import { generate_block_data } from '../../lib/disassembly';
 import { BlockAnnotation, FunctionDict } from '../../types/types';
 import { Annotation, BaseAnnotation, Block } from '../../types/assembly';
 import AnnotationText from './AnnotationText';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import { CenteredItem } from '../../Components/Layout';
@@ -13,7 +13,7 @@ import { formatAnnotation, FormattedAnnotation } from '../../lib/formatting';
 import TextField from '@mui/material/TextField';
 import { SimpleDialog } from '../../Components/Dialogs/SimpleDialog';
 import { ApiController } from '../../lib/api';
-import { retrieveSettings } from '../../lib/settings';
+import { SettingsContext } from '../../Context';
 
 export type BlockDetailProps = {
   blockDetail: Block | undefined;
@@ -32,7 +32,7 @@ export default function BlockDetail({ blockDetail, setBlockDetail, functionColor
   const [eventOpen, setEventOpen] = useState(false);
   const [storageValue, setStorageValue] = useState('');
   const [storageOpen, setStorageOpen] = useState(false);
-  const [settings] = useState(retrieveSettings);
+  const {settings} = useContext(SettingsContext);
 
   const eventLookup = (event: string | undefined) => {
     if (event !== '' && event !== undefined) {

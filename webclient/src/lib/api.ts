@@ -43,8 +43,15 @@ export class ApiController {
     }
   }
 
-  async getAddressSource(address: string, signal: AbortSignal): Promise<ApiResult<SourceCode>> {
-    return this.handleResponse('/source/' + address, signal);
+  async getAddressSource(
+    address: string,
+    args: { rpc: string; token: string },
+    signal: AbortSignal
+  ): Promise<ApiResult<SourceCode>> {
+    let queryString = '?';
+    queryString += `rpc=${args.rpc}`;
+    queryString += `&etherscan=${args.token}`;
+    return this.handleResponse('/source/' + address + queryString, signal);
   }
 
   async getAddressDisassembly(
@@ -61,15 +68,36 @@ export class ApiController {
     queryString += `&solver_timeout=${args.mythril.solverTimeout}`;
     return this.handleResponse('/disassembly/' + address + queryString, signal, args);
   }
-  async getBasicInformation(address: string, signal: AbortSignal): Promise<ApiResult<BasicContract>> {
-    return this.handleResponse('/information/basic/' + address, signal);
+  async getBasicInformation(
+    address: string,
+    args: { rpc: string; token: string },
+    signal: AbortSignal
+  ): Promise<ApiResult<BasicContract>> {
+    let queryString = '?';
+    queryString += `rpc=${args.rpc}`;
+    queryString += `&etherscan=${args.token}`;
+    return this.handleResponse('/information/basic/' + address + queryString, signal);
   }
 
-  async getContractEvents(address: string, signal: AbortSignal): Promise<ApiResult<ContractEvents>> {
-    return this.handleResponse('/information/events/' + address, signal);
+  async getContractEvents(
+    address: string,
+    args: { rpc: string; token: string },
+    signal: AbortSignal
+  ): Promise<ApiResult<ContractEvents>> {
+    let queryString = '?';
+    queryString += `rpc=${args.rpc}`;
+    queryString += `&etherscan=${args.token}`;
+    return this.handleResponse('/information/events/' + address + queryString, signal);
   }
-  async getContractTransactions(address: string, signal: AbortSignal): Promise<ApiResult<ContractTransactions>> {
-    return this.handleResponse('/information/transactions/' + address, signal);
+  async getContractTransactions(
+    address: string,
+    args: { rpc: string; token: string },
+    signal: AbortSignal
+  ): Promise<ApiResult<ContractTransactions>> {
+    let queryString = '?';
+    queryString += `rpc=${args.rpc}`;
+    queryString += `&etherscan=${args.token}`;
+    return this.handleResponse('/information/transactions/' + address + queryString, signal);
   }
 
   async getContracts(signal: AbortSignal): Promise<ApiResult<ContractList>> {
@@ -87,10 +115,10 @@ export class ApiController {
     return this.handleResponse('/tasks', signal);
   }
 
-  async getStorageLookup(address: string, args: {rpc: string | undefined, slot: string}, signal: AbortSignal) {
+  async getStorageLookup(address: string, args: { rpc: string | undefined; slot: string }, signal: AbortSignal) {
     let queryString = '?';
     queryString += `rpc=${args.rpc}`;
-    queryString += `&slot=${args.slot}`
+    queryString += `&slot=${args.slot}`;
     return this.handleResponse(`/lookup/storage/${address}${queryString}`, signal);
   }
 
