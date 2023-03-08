@@ -112,22 +112,20 @@ export default function Disassembly() {
   const [graphData, setGraphData] = useState<GraphData[]>();
   const [types, setTypes] = useState<{ [key in NodeType]: number }>();
   const [graphBarAlert, setGraphBarAlert] = useState(false);
-  const {settings} = useContext(SettingsContext)
+  const { settings } = useContext(SettingsContext);
 
   const startTask = () => {
     let apiController = new ApiController();
     const controller = new AbortController();
     const signal = controller.signal;
     if (address != null) {
-      apiController.getAddressDisassembly(address,signal,settings).then((result: ApiResult<DisassemblyState>) => {
+      apiController.getAddressDisassembly(address, signal, settings).then((result: ApiResult<DisassemblyState>) => {
         if (result.data !== null) {
-          setDisassemblyAddress(result.data)
+          setDisassemblyAddress(result.data);
         }
-      })
-      
+      });
     }
-     
-  }
+  };
 
   const closeAlert = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
@@ -142,8 +140,8 @@ export default function Disassembly() {
     //reset global states (filtering etc.) before loading new contract
     setFilter({ function: null, type: null });
     setSelect(false);
-    setBlockDetail(undefined)
-    setError(undefined)
+    setBlockDetail(undefined);
+    setError(undefined);
   }, [address, setSelect]);
 
   useEffect(() => {
@@ -184,24 +182,26 @@ export default function Disassembly() {
     setDisassemblyAddress(undefined);
     let apiController = new ApiController();
 
-    apiController.getCachedDisassembly(currentAddress, signal).then((response: ApiResult<DisassemblyResponse | DisassemblyState>) => {
-      if (response.data !== null) {
-        setCachedLoading(false);
-        setDisassemblyAddress(response.data);
-        setError(response.error)
-      } else {
-        setCachedLoading(false);
-        setDisassemblyAddress(response.data)
-        setError(response.error)
-      }
-    });
+    apiController
+      .getCachedDisassembly(currentAddress, { rpc: settings.rpc, etherscan: settings.etherscan }, signal)
+      .then((response: ApiResult<DisassemblyResponse | DisassemblyState>) => {
+        if (response.data !== null) {
+          setCachedLoading(false);
+          setDisassemblyAddress(response.data);
+          setError(response.error);
+        } else {
+          setCachedLoading(false);
+          setDisassemblyAddress(response.data);
+          setError(response.error);
+        }
+      });
 
     return () => {
       controller.abort();
       setDisassemblyAddress(undefined);
       setError(undefined);
     };
-  }, [currentAddress, setCachedLoading]);
+  }, [currentAddress, settings.etherscan, settings.rpc, setCachedLoading]);
 
   useEffect(() => {
     if (
@@ -350,29 +350,29 @@ export default function Disassembly() {
             cy.remove('#' + nodeId);
           });
           const layout = cy.makeLayout(layoutOptions);
-          layout.run()
+          layout.run();
         } else {
           notMatchingElements.addClass('omitted');
           filteredElements.addClass('contained');
         }
       }
 
-      cy.on('select','node', (event) => {
+      cy.on('select', 'node', (event) => {
         const id = event.target.data()['id'];
         if (id !== null) {
           setBlockDetail(blockRef.current['blocks'][id]);
-          setDrawerView('detail')
+          setDrawerView('detail');
         }
         cy.$(`#${id}`).addClass('highlight');
       });
 
       cy.on('layoutstart', (event) => {
         setGraphLoading(true);
-      })
+      });
 
       cy.on('layoutstop', (event) => {
-        setGraphLoading(true)
-      })
+        setGraphLoading(true);
+      });
 
       cy.on('unselect', (event) => {
         const id = event.target.data()['id'];
@@ -407,7 +407,7 @@ export default function Disassembly() {
   }
 
   var graph = undefined;
-  if (!graphLoading && !cachedLoading && !error && disassemblyAddress && !isDisassemblyState(disassemblyAddress) ) {
+  if (!graphLoading && !cachedLoading && !error && disassemblyAddress && !isDisassemblyState(disassemblyAddress)) {
     graph = (
       <DisassemblyContainer>
         <GraphView style={drawerView !== 'empty' ? { width: '50%' } : {}}>
@@ -451,7 +451,12 @@ export default function Disassembly() {
             </TopBar>
             {drawerView === 'legend' && container && <BottomLegend functionColors={functionColors} />}
             {drawerView === 'detail' && container && (
-              <BlockDetail blockDetail={blockDetail} setBlockDetail={setBlockDetail} functionColors={functionColors} address={address} />
+              <BlockDetail
+                blockDetail={blockDetail}
+                setBlockDetail={setBlockDetail}
+                functionColors={functionColors}
+                address={address}
+              />
             )}
             {drawerView === 'function' && container && (
               <FunctionDetail
@@ -472,16 +477,16 @@ export default function Disassembly() {
         </Snackbar>
       </DisassemblyContainer>
     );
-  } else if (!error && isDisassemblyState(disassemblyAddress)) { 
+  } else if (!error && isDisassemblyState(disassemblyAddress)) {
     if (disassemblyAddress.state === 1) {
       return (
         <CenterDiv>
-          <Typography padding="2em">
-            No analysis result available yet
-          </Typography>
-          <Button variant="contained" color="secondary" onClick={startTask}>Start Task</Button>
+          <Typography padding="2em">No analysis result available yet</Typography>
+          <Button variant="contained" color="secondary" onClick={startTask}>
+            Start Task
+          </Button>
         </CenterDiv>
-      )
+      );
     }
 
     if (disassemblyAddress.state === 2) {
@@ -491,21 +496,17 @@ export default function Disassembly() {
             An analysis task for this contract is already running, wait a bit for it to finish!
           </Typography>
         </CenterDiv>
-      )
+      );
     }
 
     if (disassemblyAddress.state === 3) {
       return (
         <CenterDiv>
-          <Typography padding="2em">
-            An analysis for this contract task has been started!
-          </Typography>
+          <Typography padding="2em">An analysis for this contract task has been started!</Typography>
         </CenterDiv>
-      )
+      );
     }
-   
-  } 
-  else if (typeof error === 'string' && error.toLowerCase().includes('error')) {
+  } else if (typeof error === 'string' && error.toLowerCase().includes('error')) {
     errorText = <ErrorText>{error}</ErrorText>;
   } else if (error && !isNaN(error) && disassemblyAddress === null) {
     errorText = <ErrorText>{mapStatusToMessage(error)}</ErrorText>;
@@ -520,3 +521,4 @@ export default function Disassembly() {
     </>
   );
 }
+

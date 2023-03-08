@@ -6,16 +6,19 @@ import json
 
 
 lookup_route = Blueprint('lookup', __name__,)
-ethpector_rpc = os.environ.get('ETHPECTOR_RPC')
 
 disassembly_task_name = "get_disassembly"
 
-web3prov = NodeProvider(rpc_url=ethpector_rpc)
+
 signature_provider = SignatureProvider()
 
 
 @lookup_route.route("/storage/<address>")
 def storage_lookup(address):
+
+    rpc = request.args.get('rpc')
+        
+    web3prov = NodeProvider(rpc_url=rpc)
     
     variable = request.args.get('slot')
 

@@ -16,6 +16,32 @@ export type TaskState = {
   task_result: any;
   task_status: string;
 };
+
+export type QueryArgs = {
+  param: string;
+  value: string | undefined;
+};
+
+function argsToQuery(args: Array<QueryArgs>) {
+  const querystring = args
+    .map((arg: QueryArgs) => {
+      console.log(arg);
+      if (arg.value) {
+        return `${arg.param}=${arg.value}`;
+      } else {
+        return null;
+      }
+    })
+    .filter((query) => query != null)
+    .join('&');
+
+  if (querystring) {
+    return '?' + querystring;
+  }
+
+  return '';
+}
+
 export class ApiController {
   private endpoint = process.env.REACT_APP_BACKEND_URL;
 
@@ -43,8 +69,16 @@ export class ApiController {
     }
   }
 
-  async getAddressSource(address: string, signal: AbortSignal): Promise<ApiResult<SourceCode>> {
-    return this.handleResponse('/source/' + address, signal);
+  async getAddressSource(
+    address: string,
+    args: { rpc: string; etherscan: string },
+    signal: AbortSignal
+  ): Promise<ApiResult<SourceCode>> {
+    const queryString = argsToQuery([
+      { param: 'rpc', value: args.rpc },
+      { param: 'etherscan', value: args.etherscan },
+    ]);
+    return this.handleResponse('/source/' + address + queryString, signal);
   }
 
   async getAddressDisassembly(
@@ -52,24 +86,49 @@ export class ApiController {
     signal: AbortSignal,
     args: Settings
   ): Promise<ApiResult<DisassemblyState>> {
-    let queryString = '?';
-    queryString += `etherscan=${args.etherscan}`;
-    queryString += `&rpc=${args.rpc}`;
-    queryString += `&execution_timeout=${args.mythril.executionTimeout}`;
-    queryString += `&create_timeout=${args.mythril.createTimeout}`;
-    queryString += `&max_depth=${args.mythril.maxDepth}`;
-    queryString += `&solver_timeout=${args.mythril.solverTimeout}`;
+    const queryString = argsToQuery([
+      { param: 'rpc', value: args.rpc },
+      { param: 'etherscan', value: args.etherscan },
+      { param: 'execution_timeout', value: args.mythril.executionTimeout.toString()},
+      {param: 'create_timeout', value: args.mythril.createTimeout.toString()},
+      { param: 'max_depth', value: args.mythril.maxDepth.toString()},
+      { param: 'solver_timeout', value: args.mythril.solverTimeout.toString()}
+    ]);
     return this.handleResponse('/disassembly/' + address + queryString, signal, args);
   }
-  async getBasicInformation(address: string, signal: AbortSignal): Promise<ApiResult<BasicContract>> {
-    return this.handleResponse('/information/basic/' + address, signal);
+  async getBasicInformation(
+    address: string,
+    args: { rpc: string; etherscan: string },
+    signal: AbortSignal
+  ): Promise<ApiResult<BasicContract>> {
+    const queryString = argsToQuery([
+      { param: 'rpc', value: args.rpc },
+      { param: 'etherscan', value: args.etherscan },
+    ]);
+    return this.handleResponse('/information/basic/' + address + queryString, signal);
   }
 
-  async getContractEvents(address: string, signal: AbortSignal): Promise<ApiResult<ContractEvents>> {
-    return this.handleResponse('/information/events/' + address, signal);
+  async getContractEvents(
+    address: string,
+    args: { rpc: string; etherscan: string },
+    signal: AbortSignal
+  ): Promise<ApiResult<ContractEvents>> {
+    const queryString = argsToQuery([
+      { param: 'rpc', value: args.rpc },
+      { param: 'etherscan', value: args.etherscan },
+    ]);
+    return this.handleResponse('/information/events/' + address + queryString, signal);
   }
-  async getContractTransactions(address: string, signal: AbortSignal): Promise<ApiResult<ContractTransactions>> {
-    return this.handleResponse('/information/transactions/' + address, signal);
+  async getContractTransactions(
+    address: string,
+    args: { rpc: string; etherscan: string },
+    signal: AbortSignal
+  ): Promise<ApiResult<ContractTransactions>> {
+    const queryString = argsToQuery([
+      { param: 'rpc', value: args.rpc },
+      { param: 'etherscan', value: args.etherscan },
+    ]);
+    return this.handleResponse('/information/transactions/' + address + queryString, signal);
   }
 
   async getContracts(signal: AbortSignal): Promise<ApiResult<ContractList>> {
@@ -78,17 +137,26 @@ export class ApiController {
 
   async getCachedDisassembly(
     address: string,
+    args: {rpc: string | undefined, etherscan: string | undefined},
     signal: AbortSignal
   ): Promise<ApiResult<DisassemblyResponse | DisassemblyState>> {
-    return this.handleResponse('/disassembly/load/' + address, signal);
+    const queryString = argsToQuery([
+      { param: 'rpc', value: args.rpc },
+      { param: 'slot', value: args.etherscan },
+    ]);
+    return this.handleResponse('/disassembly/load/' + address + queryString, signal);
   }
 
   async getActiveTasks(signal: AbortSignal): Promise<ApiResult<TaskResponse>> {
     return this.handleResponse('/tasks', signal);
   }
 
-  async getStorageLookup(address: string, slot: string, signal: AbortSignal) {
-    return this.handleResponse(`/lookup/storage/${address}?slot=${slot}`, signal);
+  async getStorageLookup(address: string, args: { rpc: string | undefined; slot: string }, signal: AbortSignal) {
+    const queryString = argsToQuery([
+      { param: 'rpc', value: args.rpc },
+      { param: 'slot', value: args.slot },
+    ]);
+    return this.handleResponse(`/lookup/storage/${address}${queryString}`, signal);
   }
 
   async getEventLookup(address: string, signal: AbortSignal) {

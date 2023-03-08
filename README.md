@@ -48,10 +48,9 @@ npm install
 ### Backend
 
 Before starting the backend it is required to add a .env file with all the variables set like shown in the [config files section](#config-files).
-The variables FLASK_APP,CELERY_BROKER_URL,DB_HOST,CELERY_RESULT_BACKEND, ETHERSCAN_TOKEN and ETHPECTOR_RPC need to be set.
+There are some required variables like the Celery connection details, Mongodb credentials and some other settings required for local setup or docker.
 The Mythril variables are recommended as custom defaults but are not required.
-All variables except the token and the rpc url can be used like in the example in the config files section. A free etherscan token can be obtained by creating an account at https://etherscan.io/. Etherscan provides metadata and source code that are required for the functionalities provided by the backend. Without these the backend is not fully functional.
-A rpc url can be obtained by creating a free account at infura https://infura.io/product/ethereum or another option is to run an Ethereum node. For a guide concerning this, the official Ethereum documentation for [running a node](https://ethereum.org/en/developers/docs/nodes-and-clients/run-a-node/) is a good starting point.
+Examples for setup can be seen [below](#config-files). 
 
 #### Docker
 
@@ -82,7 +81,7 @@ There are some tests for the backend defined that can be started running `pytest
 #### Example calls
 
 Example call to load the source code of the cryptopunks contract:
-http://127.0.0.1:5000/source/0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB
+http://127.0.0.1:5000/source/0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB?etherscan=\<token\>&rpc=\<rpc\>
 
 #### Config files
 For the config file there are differences in the configuration when running locally and when running with docker.
@@ -92,8 +91,6 @@ General config settings:
 FLASK_APP=app
 FLASK_ENV=development
 FLASK_CONFIG=development
-ETHERSCAN_TOKEN=<your-token>
-ETHPECTOR_RPC=<your-node-url>
 ```
 
 Variables for docker:
@@ -133,8 +130,6 @@ The complete file:
 FLASK_APP=app
 FLASK_ENV=development
 FLASK_CONFIG=development
-ETHERSCAN_TOKEN=<your-token>
-ETHPECTOR_RPC=<your-infura-url>
 
 #debug
 FLASK_HOST=localhost
@@ -194,7 +189,6 @@ REACT_APP_BACKEND_URL=http://127.0.0.1:5000
 
 ## TODOS
 - Create deploy workflow
-- Switch to a database using persistent storage for storing analysis results
 - Improve analysis visualizations (like linking ethereum addresses)
 - Human readable SMT constraints
 
