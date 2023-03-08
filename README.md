@@ -50,7 +50,6 @@ npm install
 Before starting the backend it is required to add a .env file with all the variables set like shown in the [config files section](#config-files).
 There are some required variables like the Celery connection details, Mongodb credentials and some other settings required for local setup or docker.
 The Mythril variables are recommended as custom defaults but are not required.
-Examples for setup can be seen [below](#config-files). 
 
 #### Docker
 
