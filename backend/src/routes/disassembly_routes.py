@@ -1,6 +1,6 @@
 import os
 from flask import Blueprint, request
-from utils.disassembly import add_annotations, add_symbolics, create_block_dict, is_conditional_jump, generate_jumps, add_event_lookups, add_storage_lookups
+from utils.disassembly import add_annotations, add_symbolics, create_block_dict, is_conditional_jump, generate_jumps
 from utils import get_analysis, use_args
 from ethpector.data.node import NodeProvider
 from ethpector.data import AggregateProvider
@@ -12,7 +12,6 @@ from json import JSONDecodeError
 from celery_once import QueueOnce
 from shared import celery, redis
 import dataclasses
-from ethpector.data.signatures import SignatureProvider
 from celery_once import AlreadyQueued
 from ethpector.config import Configuration
 from types import SimpleNamespace
@@ -21,9 +20,6 @@ from utils.mongo import Mongo
 from sys import getsizeof
 
 disassembly_route = Blueprint('disassembly', __name__,)
-
-etherscan_token = os.environ.get('ETHERSCAN_TOKEN')
-ethpector_rpc = os.environ.get('ETHPECTOR_RPC')
 
 disassembly_task_name = "get_disassembly"
 
@@ -43,6 +39,7 @@ class IntDecoder(json.JSONDecoder):
         else:
             return o
 
+            
 @celery.task(name=disassembly_task_name, base=QueueOnce, once={'keys': ['address']})
 def get_disassembly(address, args, mythril_args=None):
     # add task id to redis cache if multiple users load same contract only one task started
@@ -140,8 +137,11 @@ def load_analysis(address):
     receives ethpector results as input
     '''
 
+    token = request.args.get('etherscan')
+    rpc = request.args.get('rpc')
+
     config = Configuration(SimpleNamespace(**use_args(
-        etherscan_token=etherscan_token, ethpector_rpc=ethpector_rpc)))
+        etherscan_token=token, ethpector_rpc=rpc)))
 
     online_resolver = AggregateProvider(config)
     code = online_resolver.first_of(["node", "etherscan"]).get_code(address)
@@ -159,7 +159,7 @@ def load_analysis(address):
     if data == None:
         # if celery once key is found we now a task is still running
         key = queue_once_key(disassembly_task_name, {"address": address, "args": use_args(
-            etherscan_token=etherscan_token, ethpector_rpc=ethpector_rpc)}, ["address"])
+            etherscan_token=token, ethpector_rpc=rpc)}, ["address"])
         if redis.get_routes_from_cache(key) != None:
             return {"state": 2}
 
@@ -172,14 +172,6 @@ def load_analysis(address):
     pc_to_block = {int(k): int(v) for k, v in data['pc_to_block'].items()}
 
     blocks = []
-
-    web3prov = NodeProvider(rpc_url=ethpector_rpc)
-
-    add_storage_lookups(symbolic_summary, address, bbs, pc_to_block, web3prov)
-
-    signature_provider = SignatureProvider()
-
-    add_event_lookups(symbolic_summary, bbs, pc_to_block, signature_provider)
 
     # create dict that maps all instructions to each block
     for _id, bb in enumerate(bbs):
@@ -229,6 +221,7 @@ def get_disassembly_cfg(address, args):
     return json_graph.node_link_data(bbs.get_cfg())
 
 
+
 @disassembly_route.route("/<address>")
 def analyse_disassembly(address):
 
@@ -253,11 +246,3 @@ def analyse_disassembly(address):
         return {"state": 2}, 200
 
     return {"state": 3}, 200
-
-
-@disassembly_route.route("/cfg/<address>")
-def analyse_disassembly_cfg(address):
-
-    disassembly_task = get_disassembly_cfg.delay(address, use_args(
-        etherscan_token=etherscan_token, ethpector_rpc=ethpector_rpc))
-    return {"task_id": disassembly_task.id}

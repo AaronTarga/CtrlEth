@@ -1,8 +1,8 @@
 import { Table, TableBody, TableContainer, Paper, TablePagination, TableHead, Typography } from '@mui/material';
-import { Transaction } from '../types/types';
+import { Transaction } from '../../types/types';
 import { useState, Dispatch } from 'react';
-import theme from '../themes/theme';
-import { StyledTableCell, StyledTableRow, StyledLink } from '../lib/table';
+import theme from '../../themes/theme';
+import { StyledTableCell, StyledTableRow, StyledLink } from '../../lib/table';
 
 export type TransactionTableProps = {
   transactions: Array<Transaction>;

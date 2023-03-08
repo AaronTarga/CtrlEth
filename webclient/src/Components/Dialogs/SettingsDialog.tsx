@@ -1,12 +1,12 @@
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import Button from '@mui/material/Button';
-import { SettingsContext } from '../Context';
+import { SettingsContext } from '../../Context';
 import { DialogActions, DialogContent, TextField } from '@mui/material';
 import { useContext, useState } from 'react';
-import { Settings } from '../types/types';
+import { Settings } from '../../types/types';
 import Stack from '@mui/material/Stack';
-import { retrieveSettings } from '../lib/settings';
+import { retrieveSettings } from '../../lib/settings';
 
 export interface DialogProps {
   open: boolean;
