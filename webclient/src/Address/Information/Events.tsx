@@ -38,7 +38,7 @@ export default function Events({ address, setAlertShown, closeAlert }: EventsPro
     const signal = controller.signal;
 
     apiController
-      .getContractEvents(currentAddress, { rpc: settings.rpc, token: settings.etherscan }, signal)
+      .getContractEvents(currentAddress, { rpc: settings.rpc, etherscan: settings.etherscan }, signal)
       .then((response: ApiResult<ContractEvents>) => {
         if (response.data !== null) {
           setEvents(response.data);

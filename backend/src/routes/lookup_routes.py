@@ -6,7 +6,6 @@ import json
 
 
 lookup_route = Blueprint('lookup', __name__,)
-ethpector_rpc = os.environ.get('ETHPECTOR_RPC')
 
 disassembly_task_name = "get_disassembly"
 

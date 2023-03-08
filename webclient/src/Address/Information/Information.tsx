@@ -59,7 +59,7 @@ export default function Information() {
     const signal = controller.signal;
 
     apiController
-      .getBasicInformation(currentAddress, { rpc: settings.rpc, token: settings.etherscan }, signal)
+      .getBasicInformation(currentAddress, { rpc: settings.rpc, etherscan: settings.etherscan }, signal)
       .then((response: ApiResult<BasicContract>) => {
         if (response.data !== null) {
           setBasicInformation(response.data);

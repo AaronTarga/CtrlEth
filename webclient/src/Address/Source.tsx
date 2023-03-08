@@ -50,7 +50,7 @@ export default function Source() {
     setLoading(true);
 
     apiController
-      .getAddressSource(currentAddress, { rpc: settings.rpc, token: settings.etherscan }, signal)
+      .getAddressSource(currentAddress, { rpc: settings.rpc, etherscan: settings.etherscan }, signal)
       .then((response: ApiResult<SourceCode>) => {
         if (response.data !== null) {
           setAddressSource(response.data);

@@ -1,6 +1,4 @@
-import os
 from celery.result import AsyncResult
-from flask import jsonify
 from celery.signals import setup_logging
 from utils import get_analysis, use_args
 from routes.disassembly_routes import disassembly_route
@@ -10,9 +8,8 @@ from shared import app, inspect, celery
 from utils.source import categorize_abi_names
 from utils.format import str_timestamp_to_date
 from utils.mongo import Mongo
+from flask import request
 
-etherscan_token = os.environ.get('ETHERSCAN_TOKEN')
-ethpector_rpc = os.environ.get('ETHPECTOR_RPC')
 
 app.register_blueprint(disassembly_route, url_prefix="/disassembly")
 app.register_blueprint(information_route, url_prefix="/information")
@@ -32,9 +29,13 @@ def void(*args, **kwargs):
 
 @app.route("/source/<address>")
 def analyse_source(address):
+
+    token = request.args.get('etherscan')
+    rpc = request.args.get('rpc')
+
     try:
         analysis = get_analysis(address, use_args(
-            etherscan_token=etherscan_token, ethpector_rpc=ethpector_rpc))
+            etherscan_token=token, ethpector_rpc=rpc))
     except ValueError as valueError:
         # not found if valueError
         return str(valueError), 404

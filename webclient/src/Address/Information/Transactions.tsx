@@ -40,7 +40,7 @@ export default function Transactions({ address, setAlertShown, closeAlert }: Tra
     setLoading(true);
 
     apiController
-      .getContractTransactions(currentAddress, { 'rpc': settings.rpc, 'token': settings.etherscan }, signal)
+      .getContractTransactions(currentAddress, { rpc: settings.rpc, etherscan: settings.etherscan }, signal)
       .then((response: ApiResult<ContractTransactions>) => {
         if (response.data !== null) {
           setTransactions(response.data);

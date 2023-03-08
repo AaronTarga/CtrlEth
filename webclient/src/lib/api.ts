@@ -71,12 +71,12 @@ export class ApiController {
 
   async getAddressSource(
     address: string,
-    args: { rpc: string; token: string },
+    args: { rpc: string; etherscan: string },
     signal: AbortSignal
   ): Promise<ApiResult<SourceCode>> {
     const queryString = argsToQuery([
       { param: 'rpc', value: args.rpc },
-      { param: 'etherscan', value: args.token },
+      { param: 'etherscan', value: args.etherscan },
     ]);
     return this.handleResponse('/source/' + address + queryString, signal);
   }
@@ -98,35 +98,35 @@ export class ApiController {
   }
   async getBasicInformation(
     address: string,
-    args: { rpc: string; token: string },
+    args: { rpc: string; etherscan: string },
     signal: AbortSignal
   ): Promise<ApiResult<BasicContract>> {
     const queryString = argsToQuery([
       { param: 'rpc', value: args.rpc },
-      { param: 'etherscan', value: args.token },
+      { param: 'etherscan', value: args.etherscan },
     ]);
     return this.handleResponse('/information/basic/' + address + queryString, signal);
   }
 
   async getContractEvents(
     address: string,
-    args: { rpc: string; token: string },
+    args: { rpc: string; etherscan: string },
     signal: AbortSignal
   ): Promise<ApiResult<ContractEvents>> {
     const queryString = argsToQuery([
       { param: 'rpc', value: args.rpc },
-      { param: 'etherscan', value: args.token },
+      { param: 'etherscan', value: args.etherscan },
     ]);
     return this.handleResponse('/information/events/' + address + queryString, signal);
   }
   async getContractTransactions(
     address: string,
-    args: { rpc: string; token: string },
+    args: { rpc: string; etherscan: string },
     signal: AbortSignal
   ): Promise<ApiResult<ContractTransactions>> {
     const queryString = argsToQuery([
       { param: 'rpc', value: args.rpc },
-      { param: 'etherscan', value: args.token },
+      { param: 'etherscan', value: args.etherscan },
     ]);
     return this.handleResponse('/information/transactions/' + address + queryString, signal);
   }
@@ -137,9 +137,14 @@ export class ApiController {
 
   async getCachedDisassembly(
     address: string,
+    args: {rpc: string | undefined, etherscan: string | undefined},
     signal: AbortSignal
   ): Promise<ApiResult<DisassemblyResponse | DisassemblyState>> {
-    return this.handleResponse('/disassembly/load/' + address, signal);
+    const queryString = argsToQuery([
+      { param: 'rpc', value: args.rpc },
+      { param: 'slot', value: args.etherscan },
+    ]);
+    return this.handleResponse('/disassembly/load/' + address + queryString, signal);
   }
 
   async getActiveTasks(signal: AbortSignal): Promise<ApiResult<TaskResponse>> {
