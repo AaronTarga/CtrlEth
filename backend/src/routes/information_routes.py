@@ -60,8 +60,6 @@ def get_information(address):
     token = request.args.get('etherscan')
     rpc = request.args.get('rpc')
 
-    print(request.args)
-
     account_summary = extract_account_summary(address, token, rpc)
 
     if not is_valid_address(account_summary):
@@ -78,12 +76,17 @@ def get_information(address):
         eth = Etherscan(token)
     else:
         eth = Etherscan('')
+    try:
 
-    balance = eth.get_eth_balance(address=address)
-    source = eth.get_contract_source_code(address=address)
+        balance = eth.get_eth_balance(address=address)
+        source = eth.get_contract_source_code(address=address)
 
-    transaction, creator, contract_timestamp = etherscan_contract_creation(
-        token, address, eth)
+        transaction, creator, contract_timestamp = etherscan_contract_creation(
+            token, address, eth)
+    except AssertionError as assertError:
+        return str(assertError), 404
+    except Exception as error:
+        return str(error), 500
 
     data = {
         "type": "contract",
@@ -170,15 +173,14 @@ def get_events(address):
     if not is_valid_address(account_summary):
         return account_summary['task_error']['message'], account_summary['task_error']['status']
 
-    # TODO: handle rate limits and work on function handling all redundant checks
     if token is not None:
         eth = Etherscan(token)
     else:
         eth = Etherscan('')
 
-    source = eth.get_contract_source_code(address=address)
-
     try:
+
+        source = eth.get_contract_source_code(address=address)
 
         try:
             source_abi = json.loads(source[0]['ABI'])

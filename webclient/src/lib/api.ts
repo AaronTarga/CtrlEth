@@ -16,6 +16,32 @@ export type TaskState = {
   task_result: any;
   task_status: string;
 };
+
+export type QueryArgs = {
+  param: string;
+  value: string | undefined;
+};
+
+function argsToQuery(args: Array<QueryArgs>) {
+  const querystring = args
+    .map((arg: QueryArgs) => {
+      console.log(arg);
+      if (arg.value) {
+        return `${arg.param}=${arg.value}`;
+      } else {
+        return null;
+      }
+    })
+    .filter((query) => query != null)
+    .join('&');
+
+  if (querystring) {
+    return '?' + querystring;
+  }
+
+  return '';
+}
+
 export class ApiController {
   private endpoint = process.env.REACT_APP_BACKEND_URL;
 
@@ -48,9 +74,10 @@ export class ApiController {
     args: { rpc: string; token: string },
     signal: AbortSignal
   ): Promise<ApiResult<SourceCode>> {
-    let queryString = '?';
-    queryString += `rpc=${args.rpc}`;
-    queryString += `&etherscan=${args.token}`;
+    const queryString = argsToQuery([
+      { param: 'rpc', value: args.rpc },
+      { param: 'etherscan', value: args.token },
+    ]);
     return this.handleResponse('/source/' + address + queryString, signal);
   }
 
@@ -59,13 +86,14 @@ export class ApiController {
     signal: AbortSignal,
     args: Settings
   ): Promise<ApiResult<DisassemblyState>> {
-    let queryString = '?';
-    queryString += `etherscan=${args.etherscan}`;
-    queryString += `&rpc=${args.rpc}`;
-    queryString += `&execution_timeout=${args.mythril.executionTimeout}`;
-    queryString += `&create_timeout=${args.mythril.createTimeout}`;
-    queryString += `&max_depth=${args.mythril.maxDepth}`;
-    queryString += `&solver_timeout=${args.mythril.solverTimeout}`;
+    const queryString = argsToQuery([
+      { param: 'rpc', value: args.rpc },
+      { param: 'etherscan', value: args.etherscan },
+      { param: 'execution_timeout', value: args.mythril.executionTimeout.toString()},
+      {param: 'create_timeout', value: args.mythril.createTimeout.toString()},
+      { param: 'max_depth', value: args.mythril.maxDepth.toString()},
+      { param: 'solver_timeout', value: args.mythril.solverTimeout.toString()}
+    ]);
     return this.handleResponse('/disassembly/' + address + queryString, signal, args);
   }
   async getBasicInformation(
@@ -73,9 +101,10 @@ export class ApiController {
     args: { rpc: string; token: string },
     signal: AbortSignal
   ): Promise<ApiResult<BasicContract>> {
-    let queryString = '?';
-    queryString += `rpc=${args.rpc}`;
-    queryString += `&etherscan=${args.token}`;
+    const queryString = argsToQuery([
+      { param: 'rpc', value: args.rpc },
+      { param: 'etherscan', value: args.token },
+    ]);
     return this.handleResponse('/information/basic/' + address + queryString, signal);
   }
 
@@ -84,9 +113,10 @@ export class ApiController {
     args: { rpc: string; token: string },
     signal: AbortSignal
   ): Promise<ApiResult<ContractEvents>> {
-    let queryString = '?';
-    queryString += `rpc=${args.rpc}`;
-    queryString += `&etherscan=${args.token}`;
+    const queryString = argsToQuery([
+      { param: 'rpc', value: args.rpc },
+      { param: 'etherscan', value: args.token },
+    ]);
     return this.handleResponse('/information/events/' + address + queryString, signal);
   }
   async getContractTransactions(
@@ -94,9 +124,10 @@ export class ApiController {
     args: { rpc: string; token: string },
     signal: AbortSignal
   ): Promise<ApiResult<ContractTransactions>> {
-    let queryString = '?';
-    queryString += `rpc=${args.rpc}`;
-    queryString += `&etherscan=${args.token}`;
+    const queryString = argsToQuery([
+      { param: 'rpc', value: args.rpc },
+      { param: 'etherscan', value: args.token },
+    ]);
     return this.handleResponse('/information/transactions/' + address + queryString, signal);
   }
 
@@ -116,9 +147,10 @@ export class ApiController {
   }
 
   async getStorageLookup(address: string, args: { rpc: string | undefined; slot: string }, signal: AbortSignal) {
-    let queryString = '?';
-    queryString += `rpc=${args.rpc}`;
-    queryString += `&slot=${args.slot}`;
+    const queryString = argsToQuery([
+      { param: 'rpc', value: args.rpc },
+      { param: 'slot', value: args.slot },
+    ]);
     return this.handleResponse(`/lookup/storage/${address}${queryString}`, signal);
   }
 
