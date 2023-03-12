@@ -53,7 +53,8 @@ The Mythril variables are recommended as custom defaults but are not required.
 
 #### Docker
 
-To use docker, first the directory must be changed to the [backend/src folder](backend/src/). Here the container needs to be build by using `docker-compose build`.
+To use docker, first the directory must be changed to the [backend/src folder](backend/src/). Here the container needs to be build by using `docker-compose build`. For deploying docker there is a new docker-compose file which includes gunicorn and nginx to host the API endpoint on a webserver and here some settings can be changed using a .env.prod environment file. Many settings are coded to use .env and therefore not all changes work in .env.prod.
+It is possible to add a secret to allow people with knowledge of the secret to start analysis requests.
 Afterwards the container can always be started by using `docker-compose up` in the same folder.
 Our docker image includes a web tool called [flower](https://flower.readthedocs.io/en/latest/) to monitor celery tasks. Flower is useful because it logs all occurring tasks and allows to check for errors on failed tasks.
 #### Local/ Debug
@@ -98,6 +99,11 @@ FLASK_HOST=redis
 DB_HOST=mongodb
 CELERY_BROKER_URL=redis://redis:6379/0
 CELERY_RESULT_BACKEND=redis://redis:6379/0
+```
+
+Optional secret to restrict who can create new analysis requests:
+```bash
+CREATE_SECRET=securesecret
 ```
 
 Variables for local setup:
