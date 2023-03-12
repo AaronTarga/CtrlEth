@@ -3,5 +3,6 @@ from utils import celery_ext, create_app
 
 redis = Redis()
 app = create_app()
+app.config.from_prefixed_env()
 celery = celery_ext.celery
 inspect = celery.control.inspect()

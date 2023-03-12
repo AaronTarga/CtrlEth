@@ -143,7 +143,7 @@ export class ApiController {
   ): Promise<ApiResult<DisassemblyResponse | DisassemblyState>> {
     const queryString = argsToQuery([
       { param: 'rpc', value: args.rpc },
-      { param: 'slot', value: args.etherscan },
+      { param: 'etherscan', value: args.etherscan },
     ]);
     return this.handleResponse('/disassembly/load/' + address + queryString, signal);
   }
