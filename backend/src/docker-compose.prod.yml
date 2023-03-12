@@ -1,0 +1,81 @@
+version: '3.8'
+
+#using example as template
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: backend
+    command: gunicorn app:app --bind 0.0.0.0:8000
+    # this volume is used to map the files and folders on the host to the container
+    # so if we change code on the host, code in the docker container will also be changed
+    volumes:
+      - .:/app
+    ports:
+      - 8000
+    env_file:
+      - .env
+    environment:
+      - FLASK_APP=app
+    depends_on:
+      - redis
+      - mongodb
+
+  nginx:
+    build: ./nginx
+    ports:
+      - 8000:80
+    depends_on:
+      - web
+
+
+  redis-overcommit:
+    build: https://github.com/bkuhl/redis-overcommit-on-host.git
+    restart: 'no'
+    privileged: true
+    volumes:
+    - /proc/sys/vm:/mnt/vm
+
+  redis:
+    image: redis:latest
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+     - ./redis.conf:/usr/local/etc/redis/redis.conf
+    depends_on:
+      - redis-overcommit
+
+  celery_worker:
+    image: backend
+    command: /start-celeryworker
+    volumes:
+      - .:/app
+    env_file:
+      - .env.prod
+    environment:
+      - FLASK_APP=app
+    depends_on:
+      - redis
+      - mongodb
+
+  flower:
+    image: mher/flower:1.2
+    env_file: 
+        - .env.prod
+    ports: 
+        - 5555:5555
+    depends_on: 
+        - celery_worker
+
+  mongodb:
+    image: mongodb/mongodb-community-server:6.0-ubi8
+    environment:
+      MONGO_INITDB_DATABASE: "ctrleth"
+    env_file:
+      - .env.prod
+    volumes:
+        - mongodata:/data/db
+
+volumes:
+  mongodata:
+    external: false
