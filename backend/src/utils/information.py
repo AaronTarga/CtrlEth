@@ -76,10 +76,15 @@ def decode_transactions(rpc, address, txs, abi=None):
     web3prov = Web3(Web3.HTTPProvider(rpc))
 
     if abi:
+        contract = None
+
         try:
             contract = web3prov.eth.contract(address, abi=abi)
         except Exception as error:
             print(f"web3py issue: {error}")
+
+        if contract == None:
+            return
         for tx in txs:
             # https://web3py.readthedocs.io/en/v5/contracts.html?highlight=decode%20parameters#web3.contract.Contract.decode_function_input
             try:
@@ -182,9 +187,9 @@ def decode_events(rpc, address, logs, abi=None):
 
     web3prov = Web3(Web3.HTTPProvider(rpc))
 
+    contract = None
 
     if abi != None:
-        contract = None
 
         try:
             contract = web3prov.eth.contract(address, abi=abi)
@@ -198,28 +203,31 @@ def decode_events(rpc, address, logs, abi=None):
             signature_mapping = dict([("0x" + (sha3.keccak_256(signature.encode(
                 "utf-8")).hexdigest().lower()), signature) for signature in event_signatures])
 
-    for log in logs:
+    if logs:
+        for log in logs:
 
-        if contract:
-            decoded_log = decode_log_abi(rpc, log, contract, signature_mapping)
-        # if abi failed or not available use custom function
-        if decoded_log == None:
-            decoded_log = decode_log_no_abi(log)
+            decoded_log = None
 
-        name = log['topics'][0].hex()
-        indexed_values = []
-        unindexed_values = []
+            if contract:
+                decoded_log = decode_log_abi(rpc, log, contract, signature_mapping)
+            # if abi failed or not available use custom function
+            if decoded_log == None:
+                decoded_log = decode_log_no_abi(log)
 
-        if decoded_log != None:
+            name = log['topics'][0].hex()
+            indexed_values = []
+            unindexed_values = []
 
-            name, indexed_values, unindexed_values = decoded_log
+            if decoded_log != None:
 
-        block = web3prov.eth.getTransaction(log.transactionHash).blockNumber
+                name, indexed_values, unindexed_values = decoded_log
 
-        timestamp = web3prov.eth.getBlock(block).timestamp
+            block = web3prov.eth.getTransaction(log.transactionHash).blockNumber
 
-        events.append({"signature": name, "indexedValues": indexed_values, "unindexedValues": unindexed_values,
-                       "timestamp":  str_timestamp_to_date(timestamp), "transactionHash": log['transactionHash'].hex()})
+            timestamp = web3prov.eth.getBlock(block).timestamp
+
+            events.append({"signature": name, "indexedValues": indexed_values, "unindexedValues": unindexed_values,
+                        "timestamp":  str_timestamp_to_date(timestamp), "transactionHash": log['transactionHash'].hex()})
 
     return events
 
@@ -246,7 +254,6 @@ def retrieve_events(rpc, address, eth, max_blocks, starting_max):
         if logs != None and len(logs) < 50:
             current_blocks *= 10
             start_block = int(latest_block - current_blocks)
-
 
     if logs:
         logs.reverse()
