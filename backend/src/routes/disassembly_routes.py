@@ -203,6 +203,9 @@ def load_analysis(address):
 @disassembly_route.route("/<address>")
 def analyse_disassembly(address):
 
+    if secret != None and request.args.get('secret') != secret:
+        return "Not authorized",401
+
     token = request.args.get('etherscan')
     rpc = request.args.get('rpc')
 
