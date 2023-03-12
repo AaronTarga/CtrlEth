@@ -2,13 +2,10 @@ import os
 from flask import Blueprint, request
 from utils.disassembly import add_annotations, add_symbolics, create_block_dict, is_conditional_jump, generate_jumps
 from utils import get_analysis, use_args
-from ethpector.data.node import NodeProvider
 from ethpector.data import AggregateProvider
-from networkx.readwrite import json_graph
 from ethpector.data.datatypes import to_json
 from datatypes.json_mapping import json_to_assembly, json_to_basic_blocks, json_to_symbolic
 import json
-from json import JSONDecodeError
 from celery_once import QueueOnce
 from shared import celery, redis
 import dataclasses
@@ -17,16 +14,15 @@ from ethpector.config import Configuration
 from types import SimpleNamespace
 from celery_once.helpers import queue_once_key
 from utils.mongo import Mongo
-from sys import getsizeof
 
+
+secret = os.getenv("CREATE_SECRET")
 disassembly_route = Blueprint('disassembly', __name__,)
-
 disassembly_task_name = "get_disassembly"
-
-# Need to decode ints into strings because some integers are too large for mongodb to store
 
 
 class IntDecoder(json.JSONDecoder):
+    # Need to decode ints into strings because some integers are too large for mongodb to store
     def decode(self, s):
         result = super().decode(s)
         return self._decode(result)
@@ -202,7 +198,6 @@ def load_analysis(address):
             links, "functions": data['functions'], "coverage": coverage}
 
     return data
-
 
 
 @disassembly_route.route("/<address>")

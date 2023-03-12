@@ -7,3 +7,4 @@ dump.rdb
 ethpector-output
 appendonly.aof
 .VSCodeCounter
+.env.prod
