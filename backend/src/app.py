@@ -48,9 +48,9 @@ def analyse_source(address):
 
     summary = analysis.get_source_summary()
 
-    # no analysis without etherscan token
+    # no analysis without credentials
     if "etherscan" not in summary.source_code:
-        return "Etherscan token neeeded for analysis", 500
+        return "Etherscan token and rpc url neeeded for analysis", 500
 
     if "etherscan" not in summary.source_abi or "etherscan" not in summary.source_metadata:
         return "No Source code available on Etherscan", 404

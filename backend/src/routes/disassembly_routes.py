@@ -2,13 +2,10 @@ import os
 from flask import Blueprint, request
 from utils.disassembly import add_annotations, add_symbolics, create_block_dict, is_conditional_jump, generate_jumps
 from utils import get_analysis, use_args
-from ethpector.data.node import NodeProvider
 from ethpector.data import AggregateProvider
-from networkx.readwrite import json_graph
 from ethpector.data.datatypes import to_json
 from datatypes.json_mapping import json_to_assembly, json_to_basic_blocks, json_to_symbolic
 import json
-from json import JSONDecodeError
 from celery_once import QueueOnce
 from shared import celery, redis
 import dataclasses
@@ -17,21 +14,22 @@ from ethpector.config import Configuration
 from types import SimpleNamespace
 from celery_once.helpers import queue_once_key
 from utils.mongo import Mongo
-from sys import getsizeof
 
+
+secret = os.getenv("CREATE_SECRET")
 disassembly_route = Blueprint('disassembly', __name__,)
-
 disassembly_task_name = "get_disassembly"
 
-#Need to decode ints into strings because some integers are too large for mongodb to store
+
 class IntDecoder(json.JSONDecoder):
+    # Need to decode ints into strings because some integers are too large for mongodb to store
     def decode(self, s):
-        result = super().decode(s) 
+        result = super().decode(s)
         return self._decode(result)
 
     def _decode(self, o):
         if isinstance(o, int):
-                return str(o)
+            return str(o)
         elif isinstance(o, dict):
             return {k: self._decode(v) for k, v in o.items()}
         elif isinstance(o, list):
@@ -39,7 +37,7 @@ class IntDecoder(json.JSONDecoder):
         else:
             return o
 
-            
+
 @celery.task(name=disassembly_task_name, base=QueueOnce, once={'keys': ['address']})
 def get_disassembly(address, args, mythril_args=None):
     # add task id to redis cache if multiple users load same contract only one task started
@@ -101,11 +99,11 @@ def get_disassembly(address, args, mythril_args=None):
         functions = [{"entrypoint": entrypoint_by_function(
             _function, disassembly_summary.function_entrypoints, pc_to_block), "function": dataclasses.asdict(_function)} for _function in found_functions]
 
-        data = to_json({"contract": address,"symbolic_summary": symbolic_summary,
+        data = to_json({"contract": address, "symbolic_summary": symbolic_summary,
                        "disassembly_summary": disassembly_summary, "bbs": bbs, "links": links, "pc_to_block": pc_to_block, "functions": functions})
         # saving result in mongodb at the end
         mongo = Mongo()
-        mongo.db['contracts'].insert_one(json.loads(data,cls=IntDecoder))
+        mongo.db['contracts'].insert_one(json.loads(data, cls=IntDecoder))
         mongo.close()
 
     return address
@@ -202,41 +200,37 @@ def load_analysis(address):
     return data
 
 
-@celery.task(name="get_disassembly_cfg")
-def get_disassembly_cfg(address, args):
-    try:
-        analysis = get_analysis(address, args)
-    except ValueError as valueError:
-        # not found if valueError
-        return {"task_error": {"message": str(valueError), "status": 404}}
-
-    if (analysis == None):
-        return {"task_error": {"message": "No analysis result", "status": 404}}
-
-    if (not type(analysis).__name__ == "CodeAnalysis" and "task_error" in analysis):
-        return analysis
-
-    bbs = analysis.aa.get_basic_blocks()
-
-    return json_graph.node_link_data(bbs.get_cfg())
-
-
-
 @disassembly_route.route("/<address>")
 def analyse_disassembly(address):
+
+    if secret != None and request.args.get('secret') != secret:
+        return "Not authorized",401
 
     token = request.args.get('etherscan')
     rpc = request.args.get('rpc')
 
-    execution_timeout = request.args.get('execution_timeout')
-    create_timeout = request.args.get('create_timeout')
-    max_depth = request.args.get('max_depth')
-    solver_timeout = request.args.get('solver_timeout')
+    try:
+        execution_timeout = int(request.args.get('execution_timeout'))
+    except (ValueError, TypeError):
+        execution_timeout = None
+    try:
+        create_timeout = int(request.args.get('create_timeout'))
+    except (ValueError, TypeError):
+        create_timeout = None
+    try:
+        max_depth = int(request.args.get('max_depth'))
+    except (ValueError, TypeError):
+        max_depth = None
+    try:
+        solver_timeout = int(request.args.get('solver_timeout'))
+    except (ValueError, TypeError):
+        solver_timeout = None
+
     mythril_args = {
-        "execution_timeout": int(execution_timeout),
-        "create_timeout": int(create_timeout),
-        "max_depth": int(max_depth),
-        "solver_timeout": int(solver_timeout)
+        "execution_timeout": execution_timeout,
+        "create_timeout": create_timeout,
+        "max_depth": max_depth,
+        "solver_timeout": solver_timeout
     }
 
     try:

@@ -9,7 +9,6 @@ lookup_route = Blueprint('lookup', __name__,)
 
 disassembly_task_name = "get_disassembly"
 
-
 signature_provider = SignatureProvider()
 
 
