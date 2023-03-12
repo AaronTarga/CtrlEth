@@ -182,7 +182,10 @@ def decode_events(rpc, address, logs, abi=None):
 
     web3prov = Web3(Web3.HTTPProvider(rpc))
 
+
     if abi != None:
+        contract = None
+
         try:
             contract = web3prov.eth.contract(address, abi=abi)
         except Exception as error:
@@ -244,8 +247,10 @@ def retrieve_events(rpc, address, eth, max_blocks, starting_max):
             current_blocks *= 10
             start_block = int(latest_block - current_blocks)
 
-    logs.reverse()
 
-    logs = logs[:50]
+    if logs:
+        logs.reverse()
+
+        logs = logs[:50]
 
     return logs
