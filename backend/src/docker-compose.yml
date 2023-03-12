@@ -62,8 +62,6 @@ services:
 
   mongodb:
     image: mongodb/mongodb-community-server:6.0-ubi8
-    environment:
-      MONGO_INITDB_DATABASE: "ctrleth"
     env_file:
       - .env
     volumes:

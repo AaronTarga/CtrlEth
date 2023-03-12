@@ -52,8 +52,6 @@ services:
       - .:/app
     env_file:
       - .env.prod
-    environment:
-      - FLASK_APP=app
     depends_on:
       - redis
       - mongodb
@@ -69,10 +67,8 @@ services:
 
   mongodb:
     image: mongodb/mongodb-community-server:6.0-ubi8
-    environment:
-      MONGO_INITDB_DATABASE: "ctrleth"
     env_file:
-      - .env.prod
+      - .env
     volumes:
         - mongodata:/data/db
 
