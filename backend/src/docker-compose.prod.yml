@@ -15,7 +15,7 @@ services:
     ports:
       - 8000
     env_file:
-      - .env
+      - .env.prod
     environment:
       - FLASK_APP=app
     depends_on:
