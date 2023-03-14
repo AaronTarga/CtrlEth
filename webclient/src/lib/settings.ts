@@ -12,6 +12,7 @@ export const retrieveSettings = (): Settings => {
 const defaultSettings: Settings = {
     etherscan: "",
     rpc: "",
+    secret: "",
     mythril: {
       executionTimeout: Number.isInteger(Number(process.env.REACT_APP_MYTHRIL_EXECUTION_TIMEOUT))
         ? Number(process.env.REACT_APP_MYTHRIL_EXECUTION_TIMEOUT)

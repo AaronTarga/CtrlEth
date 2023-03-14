@@ -87,12 +87,13 @@ export class ApiController {
     args: Settings
   ): Promise<ApiResult<DisassemblyState>> {
     const queryString = argsToQuery([
+      { param: 'secret', value: args.secret },
       { param: 'rpc', value: args.rpc },
       { param: 'etherscan', value: args.etherscan },
-      { param: 'execution_timeout', value: args.mythril.executionTimeout.toString()},
-      {param: 'create_timeout', value: args.mythril.createTimeout.toString()},
-      { param: 'max_depth', value: args.mythril.maxDepth.toString()},
-      { param: 'solver_timeout', value: args.mythril.solverTimeout.toString()}
+      { param: 'execution_timeout', value: args.mythril.executionTimeout.toString() },
+      { param: 'create_timeout', value: args.mythril.createTimeout.toString() },
+      { param: 'max_depth', value: args.mythril.maxDepth.toString() },
+      { param: 'solver_timeout', value: args.mythril.solverTimeout.toString() },
     ]);
     return this.handleResponse('/disassembly/' + address + queryString, signal, args);
   }
@@ -137,12 +138,12 @@ export class ApiController {
 
   async getCachedDisassembly(
     address: string,
-    args: {rpc: string | undefined, etherscan: string | undefined},
+    args: { rpc: string | undefined; etherscan: string | undefined },
     signal: AbortSignal
   ): Promise<ApiResult<DisassemblyResponse | DisassemblyState>> {
     const queryString = argsToQuery([
       { param: 'rpc', value: args.rpc },
-      { param: 'slot', value: args.etherscan },
+      { param: 'etherscan', value: args.etherscan },
     ]);
     return this.handleResponse('/disassembly/load/' + address + queryString, signal);
   }

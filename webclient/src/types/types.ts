@@ -197,6 +197,7 @@ export type Task = {
 export type Settings = {
   etherscan: string | undefined,
   rpc: string | undefined,
+  secret: string | undefined,
   mythril: {
     executionTimeout: number,
     createTimeout: number,

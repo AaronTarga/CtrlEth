@@ -33,6 +33,18 @@ export function SettingsDialog(props: DialogProps) {
       <DialogTitle>Settings</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: '2em' }}>
+        <TextField
+            id="secret"
+            label="Create Secret"
+            type="text"
+            value={localSettings.secret}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            onChange={(event) => {
+              setLocalSettings({ ...localSettings, secret: event.target.value });
+            }}
+          />
           <TextField
             id="etherscan"
             label="Etherscan Token"

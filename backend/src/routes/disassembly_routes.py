@@ -1,5 +1,5 @@
-import os
 from flask import Blueprint, request
+from shared import app
 from utils.disassembly import add_annotations, add_symbolics, create_block_dict, is_conditional_jump, generate_jumps
 from utils import get_analysis, use_args
 from ethpector.data import AggregateProvider
@@ -16,7 +16,7 @@ from celery_once.helpers import queue_once_key
 from utils.mongo import Mongo
 
 
-secret = os.getenv("CREATE_SECRET")
+secret = app.config["CREATE_SECRET"]
 disassembly_route = Blueprint('disassembly', __name__,)
 disassembly_task_name = "get_disassembly"
 
