@@ -118,7 +118,7 @@ def get_transactions(address):
     account_summary = extract_account_summary(address, token, rpc)
 
     if not is_valid_address(account_summary):
-        return account_summary['task_error']['message'], account_summary['task_error']['status']
+        return account_summary['task_error'], account_summary['task_error']['status']
 
     if token is not None:
         eth = Etherscan(token)
@@ -171,7 +171,7 @@ def get_events(address):
     account_summary = extract_account_summary(address, token, rpc)
 
     if not is_valid_address(account_summary):
-        return account_summary['task_error']['message'], account_summary['task_error']['status']
+        return account_summary['task_error'], account_summary['task_error']['status']
 
     if token is not None:
         eth = Etherscan(token)

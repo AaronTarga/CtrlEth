@@ -91,9 +91,14 @@ export type GraphLibNode = {
 
 export type FunctionDict = { [key: string]: { name: string; color: string } };
 
+export type ApiError = {
+  status: number;
+  type: number;
+};
+
 export type ApiResult<T> = {
   data: T;
-  error: number | null;
+  error: ApiError | null;
 };
 
 export type TaskError = {
@@ -179,32 +184,32 @@ export type DisassemblyResponse = {
 
 export type TaskResponse = {
   tasks: Array<Task>;
-}
+};
 
 export type ContractList = {
   contracts: Array<string>;
-}
+};
 
 export type Task = {
-  contract: string,
-  args: object,
-  timestamp: string,
-  type: string,
-  id: string,
-  status: "active" | "waiting",
+  contract: string;
+  args: object;
+  timestamp: string;
+  type: string;
+  id: string;
+  status: 'active' | 'waiting';
 };
 
 export type Settings = {
-  etherscan: string | undefined,
-  rpc: string | undefined,
-  secret: string | undefined,
+  etherscan: string | undefined;
+  rpc: string | undefined;
+  secret: string | undefined;
   mythril: {
-    executionTimeout: number,
-    createTimeout: number,
-    maxDepth: number,
-    solverTimeout: number
-  }
-}
+    executionTimeout: number;
+    createTimeout: number;
+    maxDepth: number;
+    solverTimeout: number;
+  };
+};
 
 export type SourceCode = {
   source_code: string;
@@ -218,4 +223,4 @@ export type BlockAnnotation = {
   pc: number;
   name: string;
   annotations: Array<FormattedAnnotation>;
-}
+};

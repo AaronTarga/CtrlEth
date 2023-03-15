@@ -1,4 +1,5 @@
 import {
+  ApiError,
   ApiResult,
   BasicContract,
   ContractEvents,
@@ -60,12 +61,18 @@ export class ApiController {
       let response = await fetch(this.endpoint + url, { signal });
 
       if (!response.ok) {
-        return { data: null, error: response.status };
+        let message = 0;
+        let errrorResponse = await response.json();
+        message = parseInt(errrorResponse);
+        if (isNaN(message)) {
+          message = 0;
+        }
+        return { data: null, error: { status: response.status, message: message } };
       }
 
       return { data: await response.json(), error: null };
     } catch (error) {
-      return { data: null, error: this.handleError(error as Error) };
+      return { data: null, error: { status: this.handleError(error as Error), message: "0" } };
     }
   }
 
@@ -165,14 +172,17 @@ export class ApiController {
   }
 }
 
-export function mapStatusToMessage(status: Number): string {
-  if (status === 404) {
+export function mapStatusToMessage(error: ApiError): string {
+  if (error.status === 404) {
     return 'Could not find the specified input!';
   }
-  if (status === 400) {
+  if (error.status === 400) {
+    if (error.type === 0) {
+      return "Missing credentials, check if correct data given in Settings!"
+    }
     return 'Invalid Input given!';
   }
 
-  return 'Unknwon server error';
+  return 'Server failed to handle the request.';
 }
 

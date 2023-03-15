@@ -1,5 +1,5 @@
 import TasksHeader from './TasksHeader';
-import { ApiResult, Task, TaskResponse } from '../types/types';
+import { ApiError, ApiResult, Task, TaskResponse } from '../types/types';
 import { ApiController, mapStatusToMessage } from '../lib/api';
 import {
   CircularProgress,
@@ -24,7 +24,7 @@ export const CenterDiv = styled.div`
 export default function Tasks() {
   const [tasks, setTasks] = useState<Array<Task>>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<number | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
 
   useEffect(() => {
     const apiController = new ApiController();
@@ -35,18 +35,17 @@ export default function Tasks() {
       if (taskResponse.data !== null) {
         setTasks(taskResponse.data.tasks);
         setError(taskResponse.error);
-      }  else {
-        setError(taskResponse.error); 
-    }
+      } else {
+        setError(taskResponse.error);
+      }
 
-    // 299 means task is aborted and states are reset to default state
-      if (taskResponse.error === 299) {
+      // 299 means task is aborted and states are reset to default state
+      if (taskResponse.error?.status === 299) {
         setError(null);
         setLoading(true);
       } else {
         setLoading(false);
       }
-     
     });
 
     return () => {
