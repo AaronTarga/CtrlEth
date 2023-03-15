@@ -28,10 +28,10 @@ def extract_account_summary(address, etherscan_token, ethpector_rpc):
     account_summary = online_resolver.account_summary(address)
 
     if (account_summary == None):
-        return {"task_error": {"message": "Missing providers for endpoint to function", "status": 500}}
+        return {"task_error": {"message": "Missing providers for endpoint to function", "type": 0, "status": 400}}
 
     if (account_summary.is_contract == None):
-        return {"task_error": {"message": "Wrong Ethereum address as input", "status": 400}}
+        return {"task_error": {"message": "Wrong Ethereum address as input", "type": 1, "status": 400}}
 
     return account_summary
 
@@ -63,7 +63,7 @@ def get_information(address):
     account_summary = extract_account_summary(address, token, rpc)
 
     if not is_valid_address(account_summary):
-        return account_summary['task_error']['message'], account_summary['task_error']['status']
+        return account_summary['task_error'], account_summary['task_error']['status']
 
     if (not account_summary.is_contract):
         data = {
