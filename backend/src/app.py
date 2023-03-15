@@ -44,13 +44,13 @@ def analyse_source(address):
         return "No analysis result", 404
 
     if (not type(analysis).__name__ == "CodeAnalysis" and "task_error" in analysis):
-        return analysis['task_error']['message'], analysis['task_error']['status']
+        return analysis['task_error'], analysis['task_error']['status']
 
     summary = analysis.get_source_summary()
 
     # no analysis without credentials
     if "etherscan" not in summary.source_code:
-        return "Etherscan token and rpc url neeeded for analysis", 500
+        return {"type": 0,"message": "Etherscan token and rpc url neeeded for analysis"}, 400
 
     if "etherscan" not in summary.source_abi or "etherscan" not in summary.source_metadata:
         return "No Source code available on Etherscan", 404

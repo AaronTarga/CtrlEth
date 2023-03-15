@@ -16,7 +16,7 @@ from celery_once.helpers import queue_once_key
 from utils.mongo import Mongo
 
 
-secret = app.config["CREATE_SECRET"]
+secret = app.config["CREATE_SECRET"] if "CREATE_SECRET" in app.config else None
 disassembly_route = Blueprint('disassembly', __name__,)
 disassembly_task_name = "get_disassembly"
 
@@ -79,7 +79,7 @@ def get_disassembly(address, args, mythril_args=None):
             add_annotations(bb, symbolic_summary, disassembly_summary)
 
         for jump in disassembly_summary.jump_targets:
-            # adding all jumps to links list could add types if needed to block#
+            # adding all jumps to links list could add types if needed to block
             if jump.get_pc() in pc_to_block:
                 bb = bbs[pc_to_block[jump.get_pc()]]
                 if bb.is_static_jump_block():
@@ -131,30 +131,36 @@ def entrypoint_by_function(_function, entrypoints, pc_to_block):
 @disassembly_route.route("/load/<address>")
 def load_analysis(address):
     '''
-    some additional analysis liformattingformattingke storage lookups that isnt done in ethpector
-    receives ethpector results as input
+    Loads results from mongodb database
+    If there is no existing result it checks if there is a task running already or if an analyis for this contract can be started 
     '''
-
-    token = request.args.get('etherscan')
-    rpc = request.args.get('rpc')
-
-    config = Configuration(SimpleNamespace(**use_args(
-        etherscan_token=token, ethpector_rpc=rpc)))
-
-    online_resolver = AggregateProvider(config)
-    code = online_resolver.first_of(["node", "etherscan"]).get_code(address)
-
-    # invalid addresses have no code and external account addresses or selfdestructed contracts have 0x as code and cannot be analysed
-    if code == "0x":
-        return "No bytecode at address", 404
-
-    if code == None:
-        return "Not a valid address", 400
 
     mongo = Mongo()
     data = mongo.db['contracts'].find_one({"contract": address})
     mongo.close()
+
     if data == None:
+
+        token = request.args.get('etherscan')
+        rpc = request.args.get('rpc')
+
+        config = Configuration(SimpleNamespace(**use_args(
+            etherscan_token=token, ethpector_rpc=rpc)))
+
+        online_resolver = AggregateProvider(config)
+        try:
+            code = online_resolver.first_of(
+                ["node", "etherscan"]).get_code(address)
+        except Exception as ex:
+            return {"type": 0, "message": str(ex)}, 400
+
+        # invalid addresses have no code and external account addresses or selfdestructed contracts have 0x as code and cannot be analysed
+        if code == "0x":
+            return {"type": 0, "message": "No bytecode at address"}, 404
+
+        if code == None:
+            return {"type": 0, "message": "Not a valid address"}, 400
+
         # if celery once key is found we now a task is still running
         key = queue_once_key(disassembly_task_name, {"address": address, "args": use_args(
             etherscan_token=token, ethpector_rpc=rpc)}, ["address"])
@@ -204,7 +210,7 @@ def load_analysis(address):
 def analyse_disassembly(address):
 
     if secret != None and request.args.get('secret') != secret:
-        return "Not authorized",401
+        return "Not authorized", 401
 
     token = request.args.get('etherscan')
     rpc = request.args.get('rpc')
@@ -234,8 +240,10 @@ def analyse_disassembly(address):
     }
 
     try:
-        get_disassembly.delay(address, use_args(
+        result = get_disassembly.delay(address, use_args(
             etherscan_token=token, ethpector_rpc=rpc), mythril_args)
+        if "task_error" in result:
+            return result['task_error'], result['task_error']['status']
     except AlreadyQueued:
         return {"state": 2}, 200
 

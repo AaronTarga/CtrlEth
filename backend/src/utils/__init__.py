@@ -50,18 +50,21 @@ def get_analysis(address, args, mythril_args=None):
     account_summary = online_resolver.account_summary(address)
 
     if (account_summary == None):
-        return {"task_error": {"message": "Etherscan token needed for analysis", "status": 500}}
+        return {"task_error": {"message": "Etherscan token needed for analysis", "status": 400, "type": 0}}
 
     if (account_summary.is_contract == None or not account_summary.is_contract):
-        return {"task_error": {"message": "Address input is not a contract address", "status": 400}}
+        return {"task_error": {"message": "Address input is not a contract address", "status": 400, "type": 1}}
 
     code = None
 
-    code = (
-        online_resolver.first_of(["node", "etherscan"]).get_code(address)
-        if not code
-        else code
-    )
+    try:
+        code = (
+            online_resolver.first_of(["node", "etherscan"]).get_code(address)
+            if not code
+            else code
+        )
+    except Exception as ex:
+        return {"type": 0, "message": str(ex)}, 400
 
     if code is None:
         return None
