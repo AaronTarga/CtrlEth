@@ -65,9 +65,7 @@ export default function Events({ address, setAlertShown, closeAlert }: EventsPro
 
   if (loading) {
     content = <CircularProgress color="secondary" sx={{ mt: '2em' }} />;
-  } else if (typeof error === 'string' && error.toLowerCase().includes('error')) {
-    content = <ErrorText>{error}</ErrorText>;
-  } else if (error && !isNaN(error)) {
+  } else if (error) {
     content = <ErrorText>{mapStatusToMessage(error)}</ErrorText>;
   } else if (events !== undefined) {
     content = (
@@ -120,3 +118,4 @@ export default function Events({ address, setAlertShown, closeAlert }: EventsPro
     </InfoContainer>
   );
 }
+

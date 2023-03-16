@@ -240,10 +240,8 @@ def analyse_disassembly(address):
     }
 
     try:
-        result = get_disassembly.delay(address, use_args(
+        get_disassembly.delay(address, use_args(
             etherscan_token=token, ethpector_rpc=rpc), mythril_args)
-        if "task_error" in result:
-            return result['task_error'], result['task_error']['status']
     except AlreadyQueued:
         return {"state": 2}, 200
 

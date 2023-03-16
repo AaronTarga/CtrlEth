@@ -39,10 +39,10 @@ export default function BlockDetail({ blockDetail, setBlockDetail, functionColor
       const apiController = new ApiController();
       let controller = new AbortController();
       const signal = controller.signal;
+      setEventOpen(true);
       apiController.getEventLookup(event, signal).then((result) => {
         if (result.data) {
           setEventValue(result.data);
-          setEventOpen(true);
         }
       });
     }
@@ -53,10 +53,10 @@ export default function BlockDetail({ blockDetail, setBlockDetail, functionColor
       const apiController = new ApiController();
       let controller = new AbortController();
       const signal = controller.signal;
+      setStorageOpen(true);
       apiController.getStorageLookup(address, {"rpc": settings.rpc,"slot": slot}, signal).then((result) => {
         if (result.data) {
           setStorageValue(result.data);
-          setStorageOpen(true);
         }
       });
     }
