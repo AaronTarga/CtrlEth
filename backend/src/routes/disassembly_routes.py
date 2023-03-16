@@ -156,10 +156,10 @@ def load_analysis(address):
 
         # invalid addresses have no code and external account addresses or selfdestructed contracts have 0x as code and cannot be analysed
         if code == "0x":
-            return {"type": 0, "message": "No bytecode at address"}, 404
+            return {"type": 1, "message": "No bytecode at address"}, 404
 
         if code == None:
-            return {"type": 0, "message": "Not a valid address"}, 400
+            return {"type": 1, "message": "Not a valid address"}, 400
 
         # if celery once key is found we now a task is still running
         key = queue_once_key(disassembly_task_name, {"address": address, "args": use_args(

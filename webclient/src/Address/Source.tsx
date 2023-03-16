@@ -103,9 +103,7 @@ export default function Source() {
         <Code code={addressSource.source_code} language="solidity" />
       </>
     );
-  } else if (typeof error === 'string' && error.toLowerCase().includes('error')) {
-    content = <ErrorText>{error}</ErrorText>;
-  } else if (error && !isNaN(error)) {
+  } else if (error ) {
     content = <ErrorText>{mapStatusToMessage(error)}</ErrorText>;
   }
 
