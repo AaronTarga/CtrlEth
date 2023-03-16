@@ -12,7 +12,7 @@ import { CenteredItem } from '../../Components/Layout';
 import { formatAnnotation, FormattedAnnotation } from '../../lib/formatting';
 import TextField from '@mui/material/TextField';
 import { SimpleDialog } from '../../Components/Dialogs/SimpleDialog';
-import { ApiController } from '../../lib/api';
+import { ApiController, mapStatusToMessage } from '../../lib/api';
 import { SettingsContext } from '../../Context';
 
 export type BlockDetailProps = {
@@ -32,7 +32,7 @@ export default function BlockDetail({ blockDetail, setBlockDetail, functionColor
   const [eventOpen, setEventOpen] = useState(false);
   const [storageValue, setStorageValue] = useState('');
   const [storageOpen, setStorageOpen] = useState(false);
-  const {settings} = useContext(SettingsContext);
+  const { settings } = useContext(SettingsContext);
 
   const eventLookup = (event: string | undefined) => {
     if (event !== '' && event !== undefined) {
@@ -40,8 +40,11 @@ export default function BlockDetail({ blockDetail, setBlockDetail, functionColor
       let controller = new AbortController();
       const signal = controller.signal;
       setEventOpen(true);
+      setEventValue('loading');
       apiController.getEventLookup(event, signal).then((result) => {
-        if (result.data) {
+        if (result.error) {
+          setEventValue(mapStatusToMessage(result.error));
+        } else if (result.data) {
           setEventValue(result.data);
         }
       });
@@ -54,8 +57,11 @@ export default function BlockDetail({ blockDetail, setBlockDetail, functionColor
       let controller = new AbortController();
       const signal = controller.signal;
       setStorageOpen(true);
-      apiController.getStorageLookup(address, {"rpc": settings.rpc,"slot": slot}, signal).then((result) => {
-        if (result.data) {
+      setStorageValue('loading');
+      apiController.getStorageLookup(address, { rpc: settings.rpc, slot: slot }, signal).then((result) => {
+        if (result.error) {
+          setStorageValue(mapStatusToMessage(result.error));
+        } else if (result.data) {
           setStorageValue(result.data);
         }
       });

@@ -185,6 +185,10 @@ export function mapStatusToMessage(error: ApiError): string {
       return "Missing credentials, check if correct data given in Settings!"
     } else if (error.type === 1) {
       return "Wrong address type, only contract addresses allowed!"
+    } else if (error.type === 9) {
+      return "Values missing in request!"
+    } else if (error.type === 10) {
+      return "Given value is invalid!"
     }
     return 'Invalid Input given!'
   }
