@@ -22,13 +22,13 @@ def storage_lookup(address):
     variable = request.args.get('slot')
 
     if variable == None:
-        return "Slot parameter missing",400
+        return {"message": "Slot parameter missing","type": 9},400
 
     try:
         storage_value = web3prov.get_storage_at(
                 address, hex(int(variable,0)))
     except ValueError:
-        return "Invalid value given",400
+        return {"mesage": "Invalid slot value given", "type": 10},400
 
     if storage_value == None:
         return "Could not resolve storage of contract",404
@@ -45,7 +45,7 @@ def event_lookup(event):
         if (len(matches) > 0):
             signature = " or ".join(matches)
     except ValueError:
-        return "Invalid value given",400
+        return {"mesage": "Invalid event signature given", "type": 10},400
     except Exception as exception:
         print(
             f"signature lookup failed with following error: {exception}")

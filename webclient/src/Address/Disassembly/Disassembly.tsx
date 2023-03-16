@@ -508,7 +508,7 @@ export default function Disassembly() {
     }
   } else if (typeof error === 'string' && error.toLowerCase().includes('error')) {
     errorText = <ErrorText>{error}</ErrorText>;
-  } else if (error && !isNaN(error) && disassemblyAddress === null) {
+  } else if (error && disassemblyAddress === null) {
     errorText = <ErrorText>{mapStatusToMessage(error)}</ErrorText>;
   }
 

@@ -1,4 +1,5 @@
 import {
+  ApiError,
   ApiResult,
   BasicContract,
   ContractEvents,
@@ -25,7 +26,6 @@ export type QueryArgs = {
 function argsToQuery(args: Array<QueryArgs>) {
   const querystring = args
     .map((arg: QueryArgs) => {
-      console.log(arg);
       if (arg.value) {
         return `${arg.param}=${arg.value}`;
       } else {
@@ -55,17 +55,28 @@ export class ApiController {
     return 500;
   }
 
-  private async handleResponse(url: string, signal: AbortSignal, body?: object): Promise<any> {
+  private async handleResponse(url: string, signal: AbortSignal, body?: object): Promise<ApiResult<any>> {
     try {
       let response = await fetch(this.endpoint + url, { signal });
 
       if (!response.ok) {
-        return { data: null, error: response.status };
+        let message = 0;
+        let errrorResponse = await response.json();
+        if ("type" in errrorResponse) {
+          message = errrorResponse.type
+        } else {
+          message = parseInt(errrorResponse);
+          if (isNaN(message)) {
+            message = 0;
+          }
+        }
+         
+        return { data: null, error: { status: response.status, type: message } };
       }
 
       return { data: await response.json(), error: null };
     } catch (error) {
-      return { data: null, error: this.handleError(error as Error) };
+      return { data: null, error: { status: this.handleError(error as Error), type: 0 } };
     }
   }
 
@@ -165,14 +176,23 @@ export class ApiController {
   }
 }
 
-export function mapStatusToMessage(status: Number): string {
-  if (status === 404) {
+export function mapStatusToMessage(error: ApiError): string {
+  if (error.status === 404) {
     return 'Could not find the specified input!';
   }
-  if (status === 400) {
-    return 'Invalid Input given!';
+  if (error.status === 400) {
+    if (error.type === 0) {
+      return "Missing credentials, check if correct data given in Settings!"
+    } else if (error.type === 1) {
+      return "Wrong address type, only contract addresses allowed!"
+    } else if (error.type === 9) {
+      return "Values missing in request!"
+    } else if (error.type === 10) {
+      return "Given value is invalid!"
+    }
+    return 'Invalid Input given!'
   }
 
-  return 'Unknwon server error';
+  return 'Server failed to handle the request.';
 }
 
