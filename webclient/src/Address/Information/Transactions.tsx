@@ -65,9 +65,7 @@ export default function Transactions({ address, setAlertShown, closeAlert }: Tra
 
   let content = undefined;
 
-  if (typeof error === 'string' && error.toLowerCase().includes('error')) {
-    content = <ErrorText>{error}</ErrorText>;
-  } else if (error && !isNaN(error)) {
+  if (error ) {
     content = <ErrorText>{mapStatusToMessage(error)}</ErrorText>;
   } else if (transactions !== undefined) {
     content = (
