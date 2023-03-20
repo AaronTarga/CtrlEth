@@ -37,12 +37,12 @@ export function SettingsDialog(props: DialogProps) {
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Settings</DialogTitle>
-      <DialogContent sx={{ width: '400px' }}>
-        <Stack spacing={2} sx={{ mt: '2em' }}>
-          <Typography>
-           Credentials
-          </Typography>
+      <DialogTitle>
+        <Typography fontSize={'1.5em'}>Settings</Typography>
+      </DialogTitle>
+      <DialogContent dividers sx={{ width: '400px' }}>
+        <Stack spacing={2}>
+          <Typography fontSize={'1.25em'}>Credentials</Typography>
           <Stack direction="row">
             <StretchedTextfield
               id="secret"
@@ -126,9 +126,7 @@ export function SettingsDialog(props: DialogProps) {
               </IconButton>
             </Tooltip>
           </Stack>
-          <Typography>
-            Mythril Parameters
-          </Typography>
+          <Typography fontSize={'1.25em'}>Mythril Parameters</Typography>
           <StretchedTextfield
             id="execution-timeout"
             label="Execution Timeout"
