@@ -17,7 +17,7 @@ app.register_blueprint(lookup_route, url_prefix="/lookup")
 
 
 @setup_logging.connect
-# prevent celery from overriding loggin and breaking mythril analysis workaround taken from this issue: https://github.com/celery/celery/issues/1867
+# prevent celery from overriding logging and breaking mythril analysis workaround taken from this issue: https://github.com/celery/celery/issues/1867
 def void(*args, **kwargs):
     """ Override celery's logging setup to prevent it from altering our settings.
     github.com/celery/celery/issues/1867
