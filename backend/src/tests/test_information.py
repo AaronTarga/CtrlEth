@@ -1,5 +1,6 @@
 from unittest.mock import Mock, MagicMock, patch
 from utils.information import etherscan_contract_creation, etherscan_transactions, retrieve_events
+import pytest
 
 
 @patch('utils.information.requests')
@@ -20,7 +21,7 @@ def test_basic_information_malformed(request_mock):
     request_mock.get.return_value = mock_response
     address = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
 
-    assert etherscan_contract_creation(address, eth) == (None, None, None)
+    assert etherscan_contract_creation("", address, eth) == (None, None, None)
 
 
 @patch('utils.information.requests')
@@ -47,8 +48,8 @@ def test_basic_information_valid(request_mock):
     request_mock.get.return_value = mock_response
     address = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
 
-    assert etherscan_contract_creation(
-        address, eth) == (eth.get_proxy_transaction_by_hash(), creator, timestamp)
+    assert etherscan_contract_creation("",
+                                       address, eth) == (eth.get_proxy_transaction_by_hash(), creator, timestamp)
 
 
 def test_empty_transaction_retrieval():
@@ -70,19 +71,16 @@ def test_random_transaction_data_retrieval():
     eth.get_proxy_block_number = Mock(return_value="16361554")
     assert etherscan_transactions(address, eth, 100000) == (normal, internal)
 
-
-@patch('utils.information.web3prov')
-def test_empty_event_retrieval(web3_mock):
+def test_empty_event_retrieval():
     mock_response = Mock(return_value=[])
     address = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
     eth = Mock()
+    web3_mock = Mock()
     web3_mock.eth.get_logs = mock_response
     eth.get_proxy_block_number = Mock(return_value="16361554")
-    assert retrieve_events(address, eth, 100000, 10000) == []
+    assert retrieve_events(web3_mock, address, eth, 100000, 10000) == []
 
-
-@patch('utils.information.web3prov')
-def test_random_event_data_retrieval(web3_mock):
+def test_random_event_data_retrieval():
     test_events = ["loggin some transfer",
                    "logging another transfer", "another one"]
     reverse_events = test_events
@@ -90,7 +88,9 @@ def test_random_event_data_retrieval(web3_mock):
     mock_response = Mock(return_value=test_events)
     address = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
     eth = Mock()
+    web3_mock = Mock()
     web3_mock.eth.get_logs = mock_response
     eth.get_proxy_block_number = Mock(return_value="16361554")
 
-    assert retrieve_events(address, eth, 100000, 10000) == reverse_events
+    assert retrieve_events(web3_mock, address, eth,
+                           100000, 10000) == reverse_events

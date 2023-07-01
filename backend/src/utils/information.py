@@ -72,8 +72,7 @@ def etherscan_transactions(address, eth, max_blocks):
     return (txs, int_txs)
 
 
-def decode_transactions(rpc, address, txs, abi=None):
-    web3prov = Web3(Web3.HTTPProvider(rpc))
+def decode_transactions(web3prov, address, txs, abi=None):
 
     if abi:
         contract = None
@@ -151,7 +150,7 @@ def decode_log_no_abi(log):
     return (name, indexed_values, unindexed_values)
 
 
-def decode_log_abi(rpc, log, contract, mapping):
+def decode_log_abi(web3prov, log, contract, mapping):
 
     topic_signature = log['topics'][0].hex()
 
@@ -161,8 +160,6 @@ def decode_log_abi(rpc, log, contract, mapping):
         return None
 
     event = contract.events[signature.split("(")[0]]
-
-    web3prov = Web3(Web3.HTTPProvider(rpc))
 
     receipt = web3prov.eth.getTransactionReceipt(log['transactionHash'])
     for receipt_log in receipt['logs']:
@@ -182,10 +179,8 @@ def decode_log_abi(rpc, log, contract, mapping):
                 return None
 
 
-def decode_events(rpc, address, logs, abi=None):
+def decode_events(web3prov, address, logs, abi=None):
     events = []
-
-    web3prov = Web3(Web3.HTTPProvider(rpc))
 
     contract = None
 
@@ -208,8 +203,9 @@ def decode_events(rpc, address, logs, abi=None):
 
             decoded_log = None
 
+
             if contract:
-                decoded_log = decode_log_abi(rpc, log, contract, signature_mapping)
+                decoded_log = decode_log_abi(web3prov, log, contract, signature_mapping)
             # if abi failed or not available use custom function
             if decoded_log == None:
                 decoded_log = decode_log_no_abi(log)
@@ -232,14 +228,12 @@ def decode_events(rpc, address, logs, abi=None):
     return events
 
 
-def retrieve_events(rpc, address, eth, max_blocks, starting_max):
+def retrieve_events(web3prov, address, eth, max_blocks, starting_max):
 
     latest_block = int(eth.get_proxy_block_number(), base=0)
     start_block = latest_block - starting_max
 
     current_blocks = starting_max
-
-    web3prov = Web3(Web3.HTTPProvider(rpc))
 
     logs = None
     # limit down blocks until only 1000 results in query left (1000 most recent transaction)

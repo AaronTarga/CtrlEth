@@ -8,3 +8,5 @@ ethpector-output
 appendonly.aof
 .VSCodeCounter
 .env.prod
+.coverage
+junit/

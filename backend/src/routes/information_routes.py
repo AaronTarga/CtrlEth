@@ -139,7 +139,9 @@ def get_transactions(address):
         except:
             source_abi = None
 
-        decode_transactions(rpc, address, tx_limited, abi=source_abi)
+        web3prov = Web3(Web3.HTTPProvider(rpc))
+
+        decode_transactions(web3prov, address, tx_limited, abi=source_abi)
 
         data = {
             "normalTransactions": format_transactions(tx_limited),
@@ -187,9 +189,12 @@ def get_events(address):
         except:
             source_abi = None
 
-        events = retrieve_events(rpc, address, eth, max_blocks, starting_max)
+        web3prov = Web3(Web3.HTTPProvider(rpc))
 
-        events = decode_events(rpc, address, events, source_abi)
+        events = retrieve_events(
+            web3prov, address, eth, max_blocks, starting_max)
+
+        events = decode_events(web3prov, address, events, source_abi)
 
         data = {
             "events": events
